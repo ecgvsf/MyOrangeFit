@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorShoulders">#FFEB3B</color>
+    <color name="colorBack">#FF5722</color>
+    <color name="colorChest">#2196F3</color>
+    <color name="colorArms">#4CAF50</color>
+    <color name="colorLegs">#FF9800</color>
+    <!-- Aggiungi altri colori se necessario -->
+    <color name="primary">#FF9800</color>
+    <color name="secondary">#FFC107</color>
+    <color name="primary_variant">#DF6310</color>
+    <color name="secondary_variant">#FFEB3B</color>
+    <color name="trasparent">#00000000</color>
+    <color name="gray">#858585</color>
+    <color name="dark_gray">#404040</color>
+</resources>

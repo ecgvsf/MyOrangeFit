@@ -1,0 +1,113 @@
+<!-- activity_add_workout.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Spinner
+        android:id="@+id/workoutSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="8dp"
+        android:backgroundTint="@color/gray"
+        android:elevation="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/CardSerie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <EditText
+            android:id="@+id/serieEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Serie"
+            android:inputType="number"
+            android:drawableStart="@drawable/ic_serie"
+            style="@style/EditTextStyle"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardRepetitions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <EditText
+            android:id="@+id/repetitionsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ripetizioni"
+            android:inputType="number"
+            android:drawableStart="@drawable/ic_repeat"
+            style="@style/EditTextStyle"/>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:padding="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <EditText
+                android:id="@+id/weightEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Peso"
+                android:inputType="numberDecimal"
+                android:drawableStart="@drawable/ic_weight"
+                style="@style/EditTextStyle"/>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:padding="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <EditText
+                android:id="@+id/timeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tempo"
+                android:inputType="number"
+                android:drawableStart="@drawable/ic_repeat"
+                style="@style/EditTextStyle"/>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Salva"
+        app:layout_constraintTop_toBottomOf="@id/weightEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+</LinearLayout>

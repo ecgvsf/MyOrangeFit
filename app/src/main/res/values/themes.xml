@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyOrangeFit" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">#FF9800</item>
+        <item name="colorPrimaryVariant">#FF5722</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#FFC107</item>
+        <item name="colorSecondaryVariant">#FFEB3B</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <item name="android:buttonTint">#FF9800</item>
+    </style>
+
+    <style name="Theme.MyOrangeFit" parent="Base.Theme.MyOrangeFit" />
+</resources>
