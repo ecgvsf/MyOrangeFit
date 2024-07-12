@@ -31,9 +31,9 @@ class ExerciseAdapter(private val context: Context, private val exerciseList: Li
         holder.cardExercise.setOnClickListener {
             var intent = Intent()
             intent = if (type == 1){ // 0 tempo, 1 peso
-                Intent(context, WeightExerciseActivity::class.java)
+                Intent(context, Scale::class.java)
             } else {
-                Intent(context, TimeExerciseActivity::class.java)
+                Intent(context, Clock::class.java)
             }
             intent.putExtra("date", date)
             intent.putExtra("id_workout", id)
