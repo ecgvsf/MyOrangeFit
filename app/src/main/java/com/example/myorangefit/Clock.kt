@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,27 +29,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toIntRect
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.sin
 
 class Clock : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val data = intent.getStringExtra("date").orEmpty()
+        val id = intent.getIntExtra("workout_id", -1)
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ClockApp()
+                ClockApp(data, id)
             }
         }
     }
 }
 
 @Composable
-fun ClockApp() {
+fun ClockApp(date: String, id: Int) {
     val context: Context = LocalContext.current
 
     var secondHandAngle by remember { mutableFloatStateOf(90f) }
@@ -76,6 +81,9 @@ fun ClockApp() {
 
     fun start(context: Context) {
         val intent = Intent(context, RepetitionActivity::class.java)
+        intent.putExtra("date", date)
+        intent.putExtra("id_workout", id)
+        intent.putExtra("time", seconds + (minutes * 60))
         context.startActivity(intent)
     }
 
@@ -151,7 +159,28 @@ fun ClockApp() {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            Canvas(modifier = Modifier.size(400.dp)) {
+            Canvas(
+                modifier = Modifier
+                    .size(400.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { tapOffset ->
+                            val centerX = size.width / 2
+                            val centerY = size.height / 2
+                            val radius = (size.height / 5)
+
+                            // Calcola la distanza dal centro
+                            val distanceFromCenter = kotlin.math.sqrt(
+                                (tapOffset.x - centerX) * (tapOffset.x - centerX) +
+                                        (tapOffset.y - centerY) * (tapOffset.y - centerY)
+                            ).toInt()
+
+                            // Se il tocco è all'interno di un piccolo raggio dal centro, resetta il tempo
+                            if (distanceFromCenter < radius) {
+                                resetTime()
+                            }
+                        }
+                    }
+            ) {
                 val centerX = size.width / 2
                 val centerY = size.height / 2
                 val radius = size.minDimension / 3
@@ -349,47 +378,14 @@ fun ClockApp() {
                 MyButton(
                     modifier = Modifier
                         .size(60.dp),
-                    text = "+10",
-                    onClick = {
-                        addSeconds(10)
-                    }
-                )
-
-                Spacer(modifier = Modifier.width(40.dp))
-
-                MyButton(
-                    modifier = Modifier
-                        .size(60.dp),
-                    text = "+15",
-                    onClick = {
-                        addSeconds(15)
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Row {
-                MyButton(
-                    modifier = Modifier
-                        .size(60.dp),
-                    text = "✗",
-                    onClick = {
-                        resetTime()
-                    }
-                )
-
-                Spacer(modifier = Modifier.width(40.dp))
-
-                MyButton(
-                    modifier = Modifier
-                        .size(60.dp),
                     text = "✓",
                     onClick = {
                         start(context)
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -397,5 +393,5 @@ fun ClockApp() {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    ClockApp()
+    ClockApp("", -1)
 }

@@ -1,6 +1,7 @@
 package com.example.myorangefit
 
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ExerciseSelectionActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
+    private lateinit var title: TextView
     private lateinit var exerciseAdapter: ExerciseAdapter
     private lateinit var databaseHelper: DatabaseHelper
 
@@ -21,6 +23,7 @@ class ExerciseSelectionActivity : AppCompatActivity() {
         val bodyPart = intent.getStringExtra("bodyPart")
 
         recyclerView = findViewById(R.id.recyclerViewExercise)
+        title = findViewById(R.id.title)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         if (bodyPart == null) {
@@ -33,6 +36,7 @@ class ExerciseSelectionActivity : AppCompatActivity() {
         databaseHelper = DatabaseHelperSingleton.getInstance(this)
         val exerciseList: List<Workout> = databaseHelper.getWorkoutsByBodyPart(bodyPart)
 
+        title.text = bodyPart
 
         exerciseAdapter = ExerciseAdapter(this, exerciseList, selectedDate)
         recyclerView.adapter = exerciseAdapter

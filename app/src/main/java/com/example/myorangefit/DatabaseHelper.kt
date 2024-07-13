@@ -137,6 +137,26 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return workouts
     }
 
+    fun getNameByIdWorkout(id: Int): String{
+        val db = readableDatabase
+        //PRENDO IL NOME DALL'ID
+        var cursor = db.query(
+            "Workout",
+            arrayOf("name"),
+            "id = ?",
+            arrayOf(id.toString()),
+            null, null, null
+        )
+
+        var name: String = ""
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+        }
+
+        cursor.close()
+        return name
+    }
+
     fun insertWorkout(bodyPartId: Int, name: String, type: Int, imagePath: String) {
         val db = writableDatabase
         db.beginTransaction()
