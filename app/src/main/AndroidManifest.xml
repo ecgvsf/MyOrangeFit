@@ -16,11 +16,18 @@
         android:theme="@style/Theme.MyOrangeFit"
         tools:targetApi="31">
         <activity
-            android:name=".WeightExerciseActivity"
+            android:name=".RepetitionActivity"
             android:exported="false" />
         <activity
-            android:name=".TimeExerciseActivity"
-            android:exported="false" />
+            android:name=".Scale"
+            android:exported="false"
+            android:label="@string/title_activity_scale"
+            android:theme="@style/Theme.MyOrangeFit" />
+        <activity
+            android:name=".Clock"
+            android:exported="false"
+            android:label="@string/title_activity_clock"
+            android:theme="@style/Theme.MyOrangeFit" />
         <activity
             android:name=".ExerciseSelectionActivity"
             android:exported="false" />
