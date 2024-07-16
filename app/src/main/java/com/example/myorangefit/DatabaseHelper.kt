@@ -16,7 +16,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE BodyPart (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE);")
         db.execSQL("CREATE TABLE Workout (id INTEGER PRIMARY KEY AUTOINCREMENT, body_part_id INTEGER NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, image TEXT NOT NULL, FOREIGN KEY(body_part_id) REFERENCES BodyPart(id));")
-        db.execSQL("CREATE TABLE WorkoutCalendar (id_workout INTEGER NOT NULL, date TEXT NOT NULL, notes TEXT, rep INTEGER NOT NULL, series INTEGER NOT NULL, peso INTEGER, tempo TEXT, PRIMARY KEY(id_workout, date), FOREIGN KEY(id_workout) REFERENCES Workout(id));")
+        db.execSQL("CREATE TABLE WorkoutCalendar (id_workout INTEGER NOT NULL, date TEXT NOT NULL, notes TEXT, PRIMARY KEY(id_workout, date), FOREIGN KEY(id_workout) REFERENCES Workout(id));")
+        db.execSQL("CREATE TABLE Series (id INTEGER PRIMARY KEY AUTOINCREMENT,workout_id INTEGER NOT NULL, series_number INTEGER NOT NULL, rep INTEGER , peso INTEGER, tempo TEXT, FOREIGN KEY (workout_id) REFERENCES workoutcalendar(id));")
 
         val bodyParts = listOf("Chest", "Back", "Legs", "Arms", "Shoulders", "Abs")
         bodyParts.forEach {
@@ -137,6 +138,31 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return workouts
     }
 
+    fun getWorkoutById(id: Int): Workout? {
+        val db = readableDatabase
+
+        val cursor = db.query(
+            "Workout",
+            arrayOf("body_part_id", "name", "type", "image"),
+            "id = ?",
+            arrayOf(id.toString()),
+            null, null, null
+        )
+
+        cursor.use {
+            if (it.moveToFirst()) {
+                val bodyPartId = it.getString(it.getColumnIndexOrThrow("body_part_id"))
+                val name = it.getString(it.getColumnIndexOrThrow("name"))
+                val type = it.getInt(it.getColumnIndexOrThrow("type"))
+                val image = it.getString(it.getColumnIndexOrThrow("image"))
+                return Workout(id, bodyPartId, name, type, image)
+            }
+        }
+
+        return null
+    }
+
+
     fun getNameByIdWorkout(id: Int): String{
         val db = readableDatabase
         //PRENDO IL NOME DALL'ID
@@ -155,6 +181,25 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         cursor.close()
         return name
+    }
+
+    fun getTypeByIdWorkout(id: Int): Int {
+        val db = readableDatabase
+        val cursor = db.query(
+            "Workout",
+            arrayOf("type"),
+            "id = ?",
+            arrayOf(id.toString()),
+            null, null, null
+        )
+
+        var type = -1
+        if (cursor.moveToFirst()) {
+            type = cursor.getInt(cursor.getColumnIndexOrThrow("type"))
+        }
+
+        cursor.close()
+        return type
     }
 
     fun insertWorkout(bodyPartId: Int, name: String, type: Int, imagePath: String) {

@@ -1,10 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ManageWorkoutActivity">
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        app:dividerColor="@color/primary"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_margin="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:backgroundTint="@color/primary"
+            app:cardCornerRadius="8dp"
+            android:layout_weight="0">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_weight"
+                android:layout_margin="4dp"
+                app:tint="@color/white" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Exercise Library"
+            android:textSize="24dp"
+            android:layout_weight="1"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/add_card"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:backgroundTint="@color/primary"
+            app:cardCornerRadius="8dp"
+            android:layout_weight="0">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_add"
+                android:layout_margin="4dp"
+                app:tint="@color/white" />
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        app:dividerColor="@color/primary"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"/>
+
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -18,7 +83,6 @@
             android:layout_margin="8dp"
             android:orientation="vertical">
 
-
             <androidx.cardview.widget.CardView
                 style="@style/CardViewStyle"
                 android:layout_width="match_parent"
@@ -26,7 +90,6 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -45,8 +108,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:adjustViewBounds="true"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_chest"
@@ -58,7 +121,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="CHEST"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/chest_arrow"
@@ -67,12 +130,12 @@
 
                         <ImageButton
                             android:id="@+id/chest_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -99,9 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -120,8 +181,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:adjustViewBounds="true"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_back"
@@ -133,7 +194,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="BACK"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/back_arrow"
@@ -142,12 +203,12 @@
 
                         <ImageButton
                             android:id="@+id/back_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -173,9 +234,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -194,10 +253,10 @@
                             android:id="@+id/shoulders_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginStart="10dp"
                             android:adjustViewBounds="true"
-                            android:maxWidth="80dp"
-                            android:maxHeight="80dp"
+                            android:layout_marginStart="5dp"
+                            android:maxWidth="50sp"
+                            android:maxHeight="50sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_shoulder"
@@ -211,7 +270,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="SHOULDERS"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/shoulders_arrow"
@@ -220,12 +279,12 @@
 
                         <ImageButton
                             android:id="@+id/shoulders_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -251,9 +310,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -271,10 +328,10 @@
                             android:id="@+id/arms_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginStart="10dp"
                             android:adjustViewBounds="true"
-                            android:maxWidth="80dp"
-                            android:maxHeight="80dp"
+                            android:layout_marginStart="5dp"
+                            android:maxWidth="50sp"
+                            android:maxHeight="50sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_arm"
@@ -288,7 +345,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="ARMS"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/arms_arrow"
@@ -297,12 +354,12 @@
 
                         <ImageButton
                             android:id="@+id/arms_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -327,9 +384,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -342,16 +397,15 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp">
+                        android:layout_height="wrap_content">
 
                         <ImageView
                             android:id="@+id/legs_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:adjustViewBounds="true"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_leg"
@@ -363,7 +417,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="LEGS"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/legs_arrow"
@@ -372,12 +426,12 @@
 
                         <ImageButton
                             android:id="@+id/legs_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -402,9 +456,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
                 android:elevation="4dp"
                 app:cardCornerRadius="25dp">
 
@@ -416,16 +468,15 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp">
+                        android:layout_height="wrap_content">
 
                         <ImageView
                             android:id="@+id/abs_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:adjustViewBounds="true"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_abs"
@@ -437,7 +488,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="ABS"
-                            android:textColor="@color/primary"
+                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/abs_arrow"
@@ -446,12 +497,12 @@
 
                         <ImageButton
                             android:id="@+id/abs_arrow"
-                            android:layout_width="90dp"
-                            android:layout_height="90dp"
+                            android:layout_width="60sp"
+                            android:layout_height="60sp"
                             android:adjustViewBounds="true"
                             android:background="#00FFFFFF"
-                            android:maxWidth="90dp"
-                            android:maxHeight="90dp"
+                            android:maxWidth="60sp"
+                            android:maxHeight="60sp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_down"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -473,17 +524,4 @@
         </LinearLayout>
     </ScrollView>
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
-        android:src="@drawable/ic_add"
-        app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout >
+</LinearLayout >

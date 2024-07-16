@@ -45,27 +45,24 @@ import androidx.core.content.res.ResourcesCompat
 class Scale : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val data = intent.getStringExtra("date").orEmpty()
-        val id = intent.getIntExtra("workout_id", -1)
         setContent {
             ScaleTheme {
-                WeightPickerApp(data, id)
+                WeightPickerApp()
             }
         }
     }
 }
 
+@Preview
 @Composable
-fun WeightPickerApp(date: String, id: Int) {
+fun WeightPickerApp() {
     var weight by remember { mutableFloatStateOf(-19f) }
     val context: Context = LocalContext.current
 
     fun start(context: Context) {
-        val intent = Intent(context, RepetitionActivity::class.java)
-        intent.putExtra("date", date)
-        intent.putExtra("id_workout", id)
+        val intent = Intent(context, SeriesActivity::class.java)
         intent.putExtra("weight", weight)
-        context.startActivity(intent)
+
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {

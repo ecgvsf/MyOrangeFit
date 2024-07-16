@@ -43,7 +43,7 @@ class ManageWorkoutActivity : AppCompatActivity(), OnWorkoutDeleteListener {
         binding.legsArrow.setOnClickListener { changeVisibility("legs") }
 
         // Gestisci il clic sul pulsante di aggiunta di un nuovo tipo di allenamento
-        binding.fab.setOnClickListener {
+        binding.addCard.setOnClickListener {
             val intent = Intent(this, BodyPartActivity::class.java)
             intent.putExtra("calendar", 0)
             startActivity(intent)

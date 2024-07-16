@@ -29,31 +29,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toIntRect
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.sin
 
 class Clock : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val data = intent.getStringExtra("date").orEmpty()
-        val id = intent.getIntExtra("workout_id", -1)
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ClockApp(data, id)
+                ClockApp()
             }
         }
     }
 }
 
 @Composable
-fun ClockApp(date: String, id: Int) {
+fun ClockApp() {
     val context: Context = LocalContext.current
 
     var secondHandAngle by remember { mutableFloatStateOf(90f) }
@@ -80,11 +76,10 @@ fun ClockApp(date: String, id: Int) {
     }
 
     fun start(context: Context) {
-        val intent = Intent(context, RepetitionActivity::class.java)
-        intent.putExtra("date", date)
-        intent.putExtra("id_workout", id)
+        val intent = Intent(context, SeriesActivity::class.java)
+
         intent.putExtra("time", seconds + (minutes * 60))
-        context.startActivity(intent)
+
     }
 
     Surface(
@@ -393,5 +388,5 @@ fun ClockApp(date: String, id: Int) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    ClockApp("", -1)
+    ClockApp()
 }

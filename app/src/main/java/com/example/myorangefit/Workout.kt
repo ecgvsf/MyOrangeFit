@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 data class Workout(
     val id: Int,
-    val name: String,
+    var name: String,
     val bodyPart: String,
     val type: Int, //0 tempo, 1 peso
     val image: String

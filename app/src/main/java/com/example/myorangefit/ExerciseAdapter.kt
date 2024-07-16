@@ -43,11 +43,7 @@ class ExerciseAdapter(private val context: Context, private val exerciseList: Li
         //listener per selezione dell'esercizio
         holder.cardViewExercise.setOnClickListener {
             var intent = Intent()
-            intent = if (type == 1){ // 0 tempo, 1 peso
-                Intent(context, Scale::class.java)
-            } else {
-                Intent(context, Clock::class.java)
-            }
+            intent = Intent(context, SeriesActivity::class.java)
             intent.putExtra("date", date)
             intent.putExtra("id_workout", id)
             context.startActivity(intent)

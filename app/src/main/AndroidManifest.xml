@@ -16,7 +16,12 @@
         android:theme="@style/Theme.MyOrangeFit"
         tools:targetApi="31">
         <activity
-            android:name=".RepetitionActivity"
+            android:name=".Repetitions"
+            android:exported="false"
+            android:label="@string/title_activity_repetitions"
+            android:theme="@style/Theme.MyOrangeFit" />
+        <activity
+            android:name=".SeriesActivity"
             android:exported="false" />
         <activity
             android:name=".Scale"
