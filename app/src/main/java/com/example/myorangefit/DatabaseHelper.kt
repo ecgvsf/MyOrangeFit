@@ -16,8 +16,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE BodyPart (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE);")
         db.execSQL("CREATE TABLE Workout (id INTEGER PRIMARY KEY AUTOINCREMENT, body_part_id INTEGER NOT NULL, name TEXT NOT NULL, type INTEGER NOT NULL, image TEXT NOT NULL, FOREIGN KEY(body_part_id) REFERENCES BodyPart(id));")
-        db.execSQL("CREATE TABLE WorkoutCalendar (id_workout INTEGER NOT NULL, date TEXT NOT NULL, notes TEXT, PRIMARY KEY(id_workout, date), FOREIGN KEY(id_workout) REFERENCES Workout(id));")
-        db.execSQL("CREATE TABLE Series (id INTEGER PRIMARY KEY AUTOINCREMENT,workout_id INTEGER NOT NULL, series_number INTEGER NOT NULL, rep INTEGER , peso INTEGER, tempo TEXT, FOREIGN KEY (workout_id) REFERENCES workoutcalendar(id));")
+        db.execSQL("CREATE TABLE WorkoutCalendar (id_workout INTEGER NOT NULL, date DATE NOT NULL, notes TEXT, PRIMARY KEY(id_workout, date), FOREIGN KEY(id_workout) REFERENCES Workout(id));")
+        db.execSQL("CREATE TABLE Series (id INTEGER PRIMARY KEY AUTOINCREMENT,workout_id INTEGER NOT NULL, date DATE NOT NULL, series_number INTEGER NOT NULL, rep INTEGER , peso INTEGER, tempo TEXT, FOREIGN KEY (workout_id) REFERENCES workoutcalendar(id));")
 
         val bodyParts = listOf("Chest", "Back", "Legs", "Arms", "Shoulders", "Abs")
         bodyParts.forEach {
@@ -29,6 +29,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.execSQL("DROP TABLE IF EXISTS WorkoutCalendar")
         db.execSQL("DROP TABLE IF EXISTS Workout")
         db.execSQL("DROP TABLE IF EXISTS BodyPart")
+        db.execSQL("DROP TABLE IF EXISTS Series")
         onCreate(db)
     }
 
@@ -155,7 +156,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val name = it.getString(it.getColumnIndexOrThrow("name"))
                 val type = it.getInt(it.getColumnIndexOrThrow("type"))
                 val image = it.getString(it.getColumnIndexOrThrow("image"))
-                return Workout(id, bodyPartId, name, type, image)
+                return Workout(id, name, bodyPartId, type, image)
             }
         }
 
@@ -223,18 +224,27 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
     }
 
-    fun insertWorkoutInCalendar(workoutId: Int, date: String, notes: String?, rep: Int, series: Int, peso: Int, tempo: String) {
+    fun insertWorkoutInCalendar(workoutId: Int, date: String, notes: String?) {
         val db = writableDatabase
         val values = ContentValues().apply {
             put("id_workout", workoutId)
             put("date", date)
             put("notes", notes)
+        }
+        db.insert("WorkoutCalendar", null, values)
+    }
+
+    fun insertSeries(workoutId: Int, date: String, series: Int, rep: Int?, peso: Float?, tempo: Int?) {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("workout_id", workoutId)
+            put("date", date)
+            put("series_number", series)
             put("rep", rep)
-            put("series", series)
             put("peso", peso)
             put("tempo", tempo)
         }
-        db.insert("WorkoutCalendar", null, values)
+        db.insert("Series", null, values)
     }
 
     // Metodo per eliminare un esercizio dal database

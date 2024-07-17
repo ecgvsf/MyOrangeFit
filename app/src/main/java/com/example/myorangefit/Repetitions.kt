@@ -36,6 +36,7 @@ import kotlin.math.sin
 
 class CircularNumberPickerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityManager.add(this)
         super.onCreate(savedInstanceState)
 
         val data = intent.getStringExtra("date").orEmpty()

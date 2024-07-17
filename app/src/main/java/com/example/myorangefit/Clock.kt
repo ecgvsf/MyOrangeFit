@@ -1,6 +1,6 @@
 package com.example.myorangefit
 
-import android.content.Context
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,21 +35,21 @@ import kotlin.math.sin
 
 class Clock : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityManager.add(this)
         super.onCreate(savedInstanceState)
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ClockApp()
+                ClockApp(this)
             }
         }
     }
 }
 
 @Composable
-fun ClockApp() {
-    val context: Context = LocalContext.current
+fun ClockApp(clock: Clock) {
 
     var secondHandAngle by remember { mutableFloatStateOf(90f) }
     var minuteHandAngle by remember { mutableFloatStateOf(0f) }
@@ -75,10 +74,12 @@ fun ClockApp() {
         minuteHandAngle = 0f
     }
 
-    fun start(context: Context) {
-        val intent = Intent(context, SeriesActivity::class.java)
+    fun closeActivity(clock: Clock) {
+        val resultIntent = Intent()
+        resultIntent.putExtra("time", seconds + (minutes * 60))
+        clock.setResult(RESULT_OK, resultIntent)
 
-        intent.putExtra("time", seconds + (minutes * 60))
+        clock.finish()
 
     }
 
@@ -375,7 +376,7 @@ fun ClockApp() {
                         .size(60.dp),
                     text = "✓",
                     onClick = {
-                        start(context)
+                        closeActivity(clock)
                     }
                 )
             }
@@ -388,5 +389,5 @@ fun ClockApp() {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    ClockApp()
+    ClockApp(Clock())
 }

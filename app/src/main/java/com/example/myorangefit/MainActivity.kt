@@ -3,6 +3,7 @@ package com.example.myorangefit
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             var date = getCurrentDate()
             val selectedDate = calendarView.selectedDate
+            Log.d("data",selectedDate.toString())
             if (selectedDate != null) {
                 date = selectedDate.toString()
             }

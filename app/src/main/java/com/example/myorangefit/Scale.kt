@@ -1,15 +1,21 @@
 package com.example.myorangefit
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Typography
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -39,15 +45,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.res.ResourcesCompat
 
 
 class Scale : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityManager.add(this)
         super.onCreate(savedInstanceState)
         setContent {
             ScaleTheme {
-                WeightPickerApp()
+                WeightPickerApp(this)
             }
         }
     }
@@ -55,15 +63,12 @@ class Scale : ComponentActivity() {
 
 @Preview
 @Composable
-fun WeightPickerApp() {
-    var weight by remember { mutableFloatStateOf(-19f) }
-    val context: Context = LocalContext.current
-
-    fun start(context: Context) {
-        val intent = Intent(context, SeriesActivity::class.java)
-        intent.putExtra("weight", weight)
-
-    }
+fun WeightPickerApp(scale: Scale? = null) {
+    var weight by remember { mutableFloatStateOf(20f) }
+    var showDialog by remember { mutableStateOf(false) }
+    var count by remember { mutableIntStateOf(10) }
+    val customFont = ResourcesCompat.getFont(LocalContext.current, R.font.comfortaa)
+    val dialogBackgroundColor = Color(0xFF3A3A3A)
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
         Column(
@@ -75,7 +80,7 @@ fun WeightPickerApp() {
         ) {
             WeightPicker(
                 onWeightChange = { newWeight ->
-                    weight = newWeight.coerceIn(-150f, 0f)
+                    weight = newWeight.coerceIn(0f ,150f)
                 }
             )
             Spacer(modifier = Modifier.height(32.dp))
@@ -85,9 +90,99 @@ fun WeightPickerApp() {
                     .offset(x = 0.dp, y = (30).dp),
                 text = "✓",
                 onClick = {
-                    start(context)
+                    showDialog = true
                 }
             )
+            if (showDialog) {
+                Dialog(onDismissRequest = { showDialog = false }) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(dialogBackgroundColor, RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(dialogBackgroundColor)
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Choose how many reps:",
+                                color = Color.White,
+                                fontFamily = customFont?.let { FontFamily(it) }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                MyButton(
+                                    modifier = Modifier.size(60.dp),
+                                    text = "-",
+                                    onClick = { if (count > 1) count-- }
+                                )
+
+                                Canvas(modifier = Modifier.size(100.dp)) {
+                                    drawContext.canvas.nativeCanvas.apply {
+                                        drawText(
+                                            count.toString(),
+                                            size.width / 2,
+                                            size.height / 2,
+                                            Paint().apply {
+                                                textAlign = android.graphics.Paint.Align.CENTER
+                                                textSize = 60f
+                                                typeface = customFont
+                                                color = android.graphics.Color.WHITE
+                                            }
+                                        )
+                                    }
+                                }
+
+                                MyButton(
+                                    modifier = Modifier.size(60.dp),
+                                    text = "+",
+                                    onClick = { count++ }
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(Color(0xFFFF9800)),
+                                    onClick = { showDialog = false }
+                                ) {
+                                    Text("Cancel", fontFamily = customFont?.let { FontFamily(it) })
+                                }
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(Color(0xFFFF9800)),
+                                    onClick = {
+                                        Log.d("peso", weight.toString())
+                                        Log.d("peso", weight.toString())
+                                        val resultIntent = Intent()
+                                        resultIntent.putExtra("weight", weight)
+                                        resultIntent.putExtra("reps", count)
+                                        scale?.setResult(RESULT_OK, resultIntent)
+
+                                        scale?.finish()
+                                    }
+                                ) {
+                                    Text("OK", fontFamily = customFont?.let { FontFamily(it) })
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -121,6 +216,8 @@ fun WeightPicker(onWeightChange: (Float) -> Unit) {
 
     var rotationAngle by remember { mutableFloatStateOf(-19f) }
     val customFont = ResourcesCompat.getFont(LocalContext.current, R.font.comfortaa)
+
+
 
     Box(
         modifier = Modifier
@@ -289,6 +386,8 @@ fun WeightPicker(onWeightChange: (Float) -> Unit) {
 
             // Draw text background rounded rectangle
             val text = (-rotationAngle * (160 / 150f)).roundToInt().toString()
+            // Notifica il cambiamento di weight a WeightPickerApp
+            onWeightChange(text.toFloat())
             val textPaint = Paint().apply {
                 isAntiAlias = true
                 this.textSize = 64f
@@ -354,7 +453,7 @@ fun WeightPicker(onWeightChange: (Float) -> Unit) {
 }
 
 @Composable
-fun MyButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
+fun MyButton(modifier: Modifier = Modifier, text: String, fontSize: Float = 20f, onClick: () -> Unit) {
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -379,7 +478,7 @@ fun MyButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
             ),
             text = text,
             color = Color.White,
-            fontSize = 20.sp
+            fontSize = fontSize.sp
         )
     }
 }

@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/series_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
         android:id="@+id/general_notes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Note generali"
+        android:hint="Notes"
         android:inputType="textMultiLine"
         android:lines="4"
         android:gravity="top"
@@ -55,19 +55,19 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/save_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Salva"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
             android:id="@+id/cancel_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Annulla"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Salva"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 </LinearLayout>
