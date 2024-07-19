@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myorangefit"
-        minSdk 24
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -100,5 +100,7 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1'
 
 }

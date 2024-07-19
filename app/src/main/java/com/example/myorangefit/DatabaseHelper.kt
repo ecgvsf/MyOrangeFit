@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
+import android.util.Log
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -202,6 +203,66 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return type
     }
+
+    fun getAllWorkoutCalendar(): List<WorkoutCalendar> {
+        val workoutCalendarList = mutableListOf<WorkoutCalendar>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM WorkoutCalendar", null)
+        while (cursor.moveToNext()) {
+            val idWorkout = cursor.getInt(cursor.getColumnIndexOrThrow("id_workout"))
+            val date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            val notes = cursor.getString(cursor.getColumnIndexOrThrow("notes"))
+            workoutCalendarList.add(WorkoutCalendar(idWorkout, date, notes))
+        }
+        cursor.close()
+        return workoutCalendarList
+    }
+
+    fun getWorkoutsCalendarByMonths(currentYear: String, currentMonth: String): List<WorkoutCalendar> {
+        val db = readableDatabase
+        val workoutCalendarList = mutableListOf<WorkoutCalendar>()
+        val currentMonthFormatted = "%$currentYear-%$currentMonth%"
+
+        // Costruisci le date di inizio e fine per il mese corrente, il mese precedente e il mese successivo
+        val currentMonthStart = "$currentYear-$currentMonth-01"
+        val currentMonthEnd = "$currentYear-${"%02d".format(currentMonth.toInt())}-31"
+
+        val previousMonthStart = (currentMonth.toInt() - 1).let { if (it == 0) "12" else "%02d".format(it) }
+        val previousYear = if (currentMonth.toInt() == 1) "${currentYear.toInt() - 1}" else currentYear
+        val previousMonthEnd = "$previousYear-$previousMonthStart-31"
+
+        val nextMonthStart = (currentMonth.toInt() + 1).let { if (it == 13) "01" else "%02d".format(it) }
+        val nextYear = if (currentMonth.toInt() == 12) "${currentYear.toInt() + 1}" else currentYear
+        val nextMonthEnd = "$nextYear-$nextMonthStart-31"
+
+        // Esegui la query con le date calcolate
+        val cursor = db.rawQuery(
+            """
+        SELECT * FROM WorkoutCalendar
+        WHERE (date BETWEEN ? AND ?)
+           /*OR (date BETWEEN ? AND ?)
+           OR (date BETWEEN ? AND ?)*/;
+        """, arrayOf(
+                "$currentYear-${"%02d".format(currentMonth.toInt())}-01", // inizio mese corrente
+                "$currentYear-${"%02d".format(currentMonth.toInt())}-31", // fine mese corrente
+                /*"$previousYear-$previousMonthStart-01", // inizio mese precedente
+                "$previousYear-$previousMonthEnd", // fine mese precedente
+                "$nextYear-$nextMonthStart-01", // inizio mese successivo
+                "$nextYear-$nextMonthEnd" // fine mese successivo*/
+            )
+        )
+
+        while (cursor.moveToNext()) {
+            val idWorkout = cursor.getInt(cursor.getColumnIndexOrThrow("id_workout"))
+            val date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            val notes = cursor.getString(cursor.getColumnIndexOrThrow("notes"))
+
+            workoutCalendarList.add(WorkoutCalendar(idWorkout, date, notes))
+        }
+        cursor.close()
+        return workoutCalendarList
+    }
+
 
     fun insertWorkout(bodyPartId: Int, name: String, type: Int, imagePath: String) {
         val db = writableDatabase
