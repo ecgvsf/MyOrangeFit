@@ -52,6 +52,7 @@ import androidx.core.content.res.ResourcesCompat
 class Scale : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ActivityManager.add(this)
+        ActivityManager.add(this)
         super.onCreate(savedInstanceState)
         setContent {
             ScaleTheme {
@@ -66,7 +67,7 @@ class Scale : ComponentActivity() {
 fun WeightPickerApp(scale: Scale? = null) {
     var weight by remember { mutableFloatStateOf(20f) }
     var showDialog by remember { mutableStateOf(false) }
-    var count by remember { mutableIntStateOf(10) }
+    var count by remember { mutableIntStateOf(20) }
     val customFont = ResourcesCompat.getFont(LocalContext.current, R.font.comfortaa)
     val dialogBackgroundColor = Color(0xFF3A3A3A)
 

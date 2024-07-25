@@ -54,7 +54,7 @@ class ExerciseAdapter(private val context: Context, private val exerciseList: Li
         return exerciseList.size
     }
 
-    class ExerciseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ExerciseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var imageViewExercise: ImageView
         var textViewExerciseName: TextView
         var cardViewExercise: CardView

@@ -218,22 +218,27 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return workoutCalendarList
     }
 
+    fun getWorkoutsIdForDate(currentDay: String): List<Int> {
+        val workoutIds = mutableListOf<Int>()
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT id_workout FROM WorkoutCalendar WHERE date = ?",
+            arrayOf(currentDay)
+        )
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id_workout"))
+            workoutIds.add(id)
+        }
+        cursor.close()
+
+
+        return workoutIds
+    }
+
     fun getWorkoutsCalendarByMonths(currentYear: String, currentMonth: String): List<WorkoutCalendar> {
         val db = readableDatabase
         val workoutCalendarList = mutableListOf<WorkoutCalendar>()
         val currentMonthFormatted = "%$currentYear-%$currentMonth%"
-
-        // Costruisci le date di inizio e fine per il mese corrente, il mese precedente e il mese successivo
-        val currentMonthStart = "$currentYear-$currentMonth-01"
-        val currentMonthEnd = "$currentYear-${"%02d".format(currentMonth.toInt())}-31"
-
-        val previousMonthStart = (currentMonth.toInt() - 1).let { if (it == 0) "12" else "%02d".format(it) }
-        val previousYear = if (currentMonth.toInt() == 1) "${currentYear.toInt() - 1}" else currentYear
-        val previousMonthEnd = "$previousYear-$previousMonthStart-31"
-
-        val nextMonthStart = (currentMonth.toInt() + 1).let { if (it == 13) "01" else "%02d".format(it) }
-        val nextYear = if (currentMonth.toInt() == 12) "${currentYear.toInt() + 1}" else currentYear
-        val nextMonthEnd = "$nextYear-$nextMonthStart-31"
 
         // Esegui la query con le date calcolate
         val cursor = db.rawQuery(
