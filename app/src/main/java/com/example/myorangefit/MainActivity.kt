@@ -12,6 +12,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.util.LayoutDirection
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
     private val selectedDates = mutableSetOf<LocalDate>()
     private var selectedDate: LocalDate? = null
-    private var isMonthMode = false
+    private var isWeekMode = false
     private val today = LocalDate.now()
 
     private lateinit var numDayTextView: TextView
@@ -111,8 +112,8 @@ class MainActivity : AppCompatActivity() {
         setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
         setupWeekCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
 
-        monthCalendarView.isInvisible = isMonthMode
-        weekCalendarView.isInvisible = !isMonthMode
+        monthCalendarView.isInvisible = isWeekMode
+        weekCalendarView.isInvisible = !isWeekMode
 
         updateTitle()
         updateDayInfo(today)
@@ -125,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         monthCalendarView.viewTreeObserver.addOnGlobalLayoutListener {
             collapsedPosition = monthCalendarView.bottom.toFloat()
-            if (isMonthMode) {
+            if (isWeekMode) {
                 cardView.y = collapsedPosition
             }
         }
@@ -141,6 +142,26 @@ class MainActivity : AppCompatActivity() {
         binding.manageWorkoutsButton.setOnClickListener {
             val intent = Intent(this, ManageWorkoutActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.left.setOnClickListener { scroll(-1) }
+        binding.right.setOnClickListener { scroll(1) }
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------
+    /* ----------------------------------------------- Per Scorrere il calendario con le Frecce ---------------------------------------------- */
+
+    private fun scroll(direction: Long) {
+        if (!isWeekMode) { //calendario mensile
+            val dateToShow = monthCalendarView.findFirstVisibleMonth()?.yearMonth?.plusMonths(direction)
+            if (dateToShow != null) {
+                monthCalendarView.scrollToMonth(dateToShow)
+            }
+        } else { //calendario settimanale
+            val dateToShow = weekCalendarView.findFirstVisibleWeek()?.days?.first()?.date?.plusWeeks(direction)
+            if (dateToShow != null) {
+                weekCalendarView.scrollToWeek(dateToShow)
+            }
         }
     }
 
@@ -178,8 +199,8 @@ class MainActivity : AppCompatActivity() {
                     val newMode = if (deltaY < 0) true else false
 
                     // Verifica se la nuova modalità è diversa dall'attuale
-                    if (newMode != isMonthMode) {
-                        isMonthMode = newMode
+                    if (newMode != isWeekMode) {
+                        isWeekMode = newMode
                         animateCalendar()
                         updateTitle()
                     }
@@ -192,7 +213,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun animateCalendar() {
         val dateToShow = selectedDate ?: today
-        if (!isMonthMode) {
+        if (!isWeekMode) {
             monthCalendarView.scrollToMonth(dateToShow.yearMonth)
         } else {
             weekCalendarView.scrollToWeek(dateToShow.startOfWeek())
@@ -201,16 +222,16 @@ class MainActivity : AppCompatActivity() {
         val weekHeight = weekCalendarView.height
         val visibleMonthHeight = weekHeight * monthCalendarView.findFirstVisibleMonth()?.weekDays.orEmpty().count()
 
-        val oldHeight = if (isMonthMode) visibleMonthHeight else weekHeight
-        val newHeight = if (isMonthMode) weekHeight else visibleMonthHeight
+        val oldHeight = if (isWeekMode) visibleMonthHeight else weekHeight
+        val newHeight = if (isWeekMode) weekHeight else visibleMonthHeight
 
         val oldPosition = cardView.y
-        val newPosition = if (isMonthMode) oldHeight else newHeight
+        val newPosition = if (isWeekMode) oldHeight else newHeight
 
         // Larghezza della linea
         val line = findViewById<View>(R.id.line)
         val oldLineWidth = line.layoutParams.width
-        val newLineWidth = if (isMonthMode) oldLineWidth + 64 else oldLineWidth - 64
+        val newLineWidth = if (isWeekMode) oldLineWidth + 64 else oldLineWidth - 64
 
         // Animatore per altezza del calendario e posizione della CardView
         val heightAnimator = ValueAnimator.ofInt(oldHeight, newHeight).apply {
@@ -226,13 +247,13 @@ class MainActivity : AppCompatActivity() {
                 cardView.y = oldPosition + (newPosition - oldPosition) * (animatedHeight.toFloat() / newHeight)
             }
             doOnStart {
-                if (!isMonthMode) {
+                if (!isWeekMode) {
                     weekCalendarView.isInvisible = true
                     monthCalendarView.isVisible = true
                 }
             }
             doOnEnd {
-                if (isMonthMode) {
+                if (isWeekMode) {
                     weekCalendarView.isVisible = true
                     monthCalendarView.isInvisible = true
                 } else {
@@ -489,7 +510,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun updateTitle() {
-        if (!isMonthMode) {
+        if (!isWeekMode) {
             val month = monthCalendarView.findFirstVisibleMonth()?.yearMonth ?: return
             binding.exOneYearText.text = month.year.toString()
             binding.exOneMonthText.text = month.month.displayText(short = false)
