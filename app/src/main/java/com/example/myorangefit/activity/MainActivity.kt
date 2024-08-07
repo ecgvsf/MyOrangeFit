@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.ActionBar.LayoutParams
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -128,6 +129,7 @@ class MainActivity : AppCompatActivity() {
             expandedPosition = weekCalendarView.bottom.toFloat()
             collapsedPosition = monthCalendarView.bottom.toFloat()
             cardView.y = collapsedPosition
+            adjustRecyclerViewHeight()
         }
 
         monthCalendarView.viewTreeObserver.addOnGlobalLayoutListener {
@@ -207,6 +209,13 @@ class MainActivity : AppCompatActivity() {
                     // Verifica se la nuova modalità è diversa dall'attuale
                     if (newMode != isWeekMode) {
                         isWeekMode = newMode
+                        val visibility: Int = if (isWeekMode){
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                        binding.selectButton.visibility = visibility
+                        binding.editButton.visibility = visibility
                         animateCalendar()
                         updateTitle()
                     }
@@ -257,6 +266,7 @@ class MainActivity : AppCompatActivity() {
                     weekCalendarView.isInvisible = true
                     monthCalendarView.isVisible = true
                 }
+                adjustRecyclerViewHeight()
             }
             doOnEnd {
                 if (isWeekMode) {
@@ -509,6 +519,28 @@ class MainActivity : AppCompatActivity() {
         }
         exerciseAdapter = ExerciseCalendarAdapter(context, workout)
         list.adapter = exerciseAdapter
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------
+    /* ---------------------------------------------- Per adattare l'altezza del RecyclerView ----------------------------------------------- */
+
+    private fun adjustRecyclerViewHeight() {
+        val screenHeight = resources.displayMetrics.heightPixels
+        val cardViewH = cardView.height
+        val availableHeight = screenHeight - cardViewH
+
+        // DA RIFARE
+        Log.d("dataaa", "1 $isWeekMode, $cardViewH $screenHeight $availableHeight, ${recyclerView.height}")
+        if (!isWeekMode)
+            recyclerView.updateLayoutParams<LinearLayout.LayoutParams> {
+                height = LayoutParams.WRAP_CONTENT
+            }
+        else
+            recyclerView.updateLayoutParams<LinearLayout.LayoutParams> {
+                height = LayoutParams.WRAP_CONTENT
+            }
+
+        Log.d("dataaa", "2 $isWeekMode, $cardViewH $screenHeight $availableHeight, ${recyclerView.height}")
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
