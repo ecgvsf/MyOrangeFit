@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.database
 import android.content.Context
 
 object DatabaseHelperSingleton {

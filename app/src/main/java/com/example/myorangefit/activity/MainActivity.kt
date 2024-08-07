@@ -1,8 +1,7 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.animation.AnimatorSet
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -12,7 +11,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.util.LayoutDirection
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -30,8 +28,13 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myorangefit.R
+import com.example.myorangefit.adapter.ExerciseCalendarAdapter
+import com.example.myorangefit.database.DatabaseHelper
+import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.databinding.ActivityMainBinding
 import com.example.myorangefit.databinding.CalendarDayBinding
+import com.example.myorangefit.model.Workout
 import com.kizitonwose.calendar.core.*
 import com.kizitonwose.calendar.view.*
 import java.time.DayOfWeek
@@ -67,10 +70,11 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.darkdark_gray)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -115,6 +119,8 @@ class MainActivity : AppCompatActivity() {
         monthCalendarView.isInvisible = isWeekMode
         weekCalendarView.isInvisible = !isWeekMode
 
+        val w = loadWorkoutsForDate(today)
+        displayWorkouts(this, w)
         updateTitle()
         updateDayInfo(today)
 
@@ -135,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             val date = (selectedDate ?: today).toString()
             val intent = Intent(this, BodyPartActivity::class.java)
             intent.putExtra("selectedDate", date)
-            intent.putExtra("calendar", 1)
+            intent.putExtra("flag", 1)
             startActivity(intent)
         }
 

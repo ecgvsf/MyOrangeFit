@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.database
 
 import android.content.ContentValues
 
@@ -6,7 +6,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
-import android.util.Log
+import com.example.myorangefit.model.BodyPart
+import com.example.myorangefit.model.Workout
+import com.example.myorangefit.model.WorkoutCalendar
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -320,6 +322,28 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return deletedRows > 0
     }
+
+    fun updateWorkout(id: Int, bodyPartId: Int, name: String, type: Int, imagePath: String): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("body_part_id", bodyPartId)
+            put("name", name)
+            put("type", type)
+            put("image", imagePath)
+        }
+
+        val affectedRows = db.update(
+            "Workout",
+            values,
+            "id = ?",
+            arrayOf(id.toString())
+        )
+
+        return affectedRows > 0
+    }
+
+
+
 
     // Metodo per eseguire il backup del database
     fun backupDatabase(context: Context): Boolean {

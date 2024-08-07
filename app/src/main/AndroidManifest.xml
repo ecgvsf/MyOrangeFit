@@ -19,32 +19,32 @@
             android:name=".MainActivity2"
             android:exported="false" />
         <activity
-            android:name=".SeriesActivity"
+            android:name=".activity.SeriesActivity"
             android:exported="false" />
         <activity
-            android:name=".Scale"
+            android:name=".compose.Scale"
             android:exported="false"
             android:label="@string/title_activity_scale"
             android:theme="@style/Theme.MyOrangeFit" />
         <activity
-            android:name=".Clock"
+            android:name=".compose.Clock"
             android:exported="false"
             android:label="@string/title_activity_clock"
             android:theme="@style/Theme.MyOrangeFit" />
         <activity
-            android:name=".ExerciseSelectionActivity"
+            android:name=".activity.ExerciseSelectionActivity"
             android:exported="false" />
         <activity
-            android:name=".BodyPartActivity"
+            android:name=".activity.BodyPartActivity"
             android:exported="false" />
         <activity
-            android:name=".AddWorkoutTypeActivity"
+            android:name=".activity.AddWorkoutTypeActivity"
             android:exported="false" />
         <activity
-            android:name=".ManageWorkoutActivity"
+            android:name=".activity.ManageWorkoutActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.os.Bundle
 import android.widget.TextView
@@ -6,6 +6,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myorangefit.R
+import com.example.myorangefit.adapter.ExerciseAdapter
+import com.example.myorangefit.database.DatabaseHelper
+import com.example.myorangefit.database.DatabaseHelperSingleton
+import com.example.myorangefit.model.Workout
 
 
 class ExerciseSelectionActivity : AppCompatActivity() {

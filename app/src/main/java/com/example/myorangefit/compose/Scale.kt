@@ -1,7 +1,6 @@
-package com.example.myorangefit
+package com.example.myorangefit.compose
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
@@ -47,6 +46,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.res.ResourcesCompat
+import com.example.myorangefit.activity.ActivityManager
+import com.example.myorangefit.R
 
 
 class Scale : ComponentActivity() {

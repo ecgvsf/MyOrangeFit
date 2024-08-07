@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Orange Fit</string>
+    <string name="app_name">My Fit Orange</string>
     <string name="title_activity_clock">Clock</string>
     <string name="title_activity_scale">Scale</string>
     <string name="title_activity_repetitions">Repetitions</string>

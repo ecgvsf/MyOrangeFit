@@ -1,7 +1,4 @@
-package com.example.myorangefit
-
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+package com.example.myorangefit.model
 
 data class Workout(
     val id: Int,

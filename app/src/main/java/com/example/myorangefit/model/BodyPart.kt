@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.model
 
 data class BodyPart(
     val id: Int,

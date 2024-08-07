@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.compose
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myorangefit.activity.ActivityManager
+import com.example.myorangefit.R
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos

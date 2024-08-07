@@ -36,13 +36,16 @@
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:textSize="16sp"
-            android:text="Esercizio per la parte del corpo"
+            android:text="Esercizio per la parte del corpooooooooooooooooooo"
             android:layout_marginStart="16dp"
-            app:layout_constraintStart_toEndOf="@+id/cardView" />
+            app:layout_constraintStart_toEndOf="@+id/cardView"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:ellipsize="end"
+            android:singleLine="true"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

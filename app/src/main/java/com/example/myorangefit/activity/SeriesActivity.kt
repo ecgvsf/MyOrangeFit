@@ -1,8 +1,7 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -14,6 +13,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myorangefit.R
+import com.example.myorangefit.adapter.SeriesAdapter
+import com.example.myorangefit.compose.Clock
+import com.example.myorangefit.compose.Scale
+import com.example.myorangefit.database.DatabaseHelper
 
 
 class SeriesActivity : AppCompatActivity() {
@@ -91,7 +95,7 @@ class SeriesActivity : AppCompatActivity() {
         val cancelButton = findViewById<Button>(R.id.cancel_button)
         cancelButton.setOnClickListener {
             ActivityManager.finishAll()
-            startActivity(Intent(this,MainActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
         }
 
         val saveButton = findViewById<Button>(R.id.save_button)

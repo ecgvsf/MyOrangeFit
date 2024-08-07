@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ManageWorkoutActivity">
+    tools:context=".activity.ManageWorkoutActivity">
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_add"
-                android:layout_margin="4dp"
+                android:padding="6dp"
                 app:tint="@color/white" />
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -143,7 +143,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/chest_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
                 </LinearLayout>
 
 
@@ -216,7 +216,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/back_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -224,7 +224,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -292,7 +292,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/shoulders_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -300,7 +300,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -367,7 +367,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/arms_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -375,7 +375,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -439,7 +439,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/legs_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -447,7 +447,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -510,7 +510,7 @@
                             app:tint="@color/primary" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.example.myorangefit.adapter.WrapContentRV
                         android:id="@+id/abs_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -518,7 +518,7 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                    </androidx.recyclerview.widget.RecyclerView>
+                    </com.example.myorangefit.adapter.WrapContentRV>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>

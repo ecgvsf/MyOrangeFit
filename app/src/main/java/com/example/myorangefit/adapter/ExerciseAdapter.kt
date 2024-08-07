@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.adapter
 
 import android.content.Context
 import android.content.Intent
@@ -11,6 +11,10 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.myorangefit.database.DatabaseHelper
+import com.example.myorangefit.R
+import com.example.myorangefit.activity.SeriesActivity
+import com.example.myorangefit.model.Workout
 
 
 class ExerciseAdapter(private val context: Context, private val exerciseList: List<Workout>, private val date : String) :

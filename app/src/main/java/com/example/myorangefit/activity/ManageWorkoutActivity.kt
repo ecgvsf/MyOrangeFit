@@ -1,17 +1,22 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
+import com.example.myorangefit.R
+import com.example.myorangefit.adapter.OnWorkoutDeleteListener
+import com.example.myorangefit.adapter.WorkoutAdapter
+import com.example.myorangefit.database.DatabaseHelper
+import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.databinding.ActivityManageWorkoutBinding
+import com.example.myorangefit.model.Workout
 
 class ManageWorkoutActivity : AppCompatActivity(), OnWorkoutDeleteListener {
 
@@ -45,7 +50,7 @@ class ManageWorkoutActivity : AppCompatActivity(), OnWorkoutDeleteListener {
         // Gestisci il clic sul pulsante di aggiunta di un nuovo tipo di allenamento
         binding.addCard.setOnClickListener {
             val intent = Intent(this, BodyPartActivity::class.java)
-            intent.putExtra("calendar", 0)
+            intent.putExtra("flag", 0)
             startActivity(intent)
         }
     }

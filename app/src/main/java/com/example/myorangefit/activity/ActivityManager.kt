@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.app.Activity
 
