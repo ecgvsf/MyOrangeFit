@@ -79,9 +79,9 @@ class HomeFragment : Fragment() {
     ) {
         class WeekDayViewContainer(view: View) : ViewContainer(view) {
             lateinit var day: WeekDay
-            val binding = CalendarDayBinding.bind(view)
-            val number: TextView = binding.exOneDayText
-            //val week: TextView = binding.week
+            val binding = CalendarDayWeekBinding.bind(view)
+            val number: TextView = binding.number
+            val week: TextView = binding.week
             val dayContainer: LinearLayout = binding.dayContainer
 
             init {
@@ -93,7 +93,7 @@ class HomeFragment : Fragment() {
             override fun create(view: View): WeekDayViewContainer = WeekDayViewContainer(view)
             override fun bind(container: WeekDayViewContainer, data: WeekDay) {
                 container.day = data
-                bindDate(data.date, container.dayContainer, container.number,  data.position == WeekDayPosition.RangeDate)
+                bindDate(data.date, container.dayContainer, container.number,  container.week, data.position == WeekDayPosition.RangeDate)
             }
         }
 
@@ -106,22 +106,22 @@ class HomeFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun bindDate(date: LocalDate, dayContainer: LinearLayout, number: TextView,  isSelectable: Boolean) {
+    private fun bindDate(date: LocalDate, dayContainer: LinearLayout, number: TextView, week: TextView,  isSelectable: Boolean) {
         number.text = "${date.dayOfMonth}"
-        //week.text = date.dayOfWeek.name.substring(0, 1) + date.dayOfWeek.name.substring(1, 3).lowercase()
+        week.text = date.dayOfWeek.name.substring(0, 1) + date.dayOfWeek.name.substring(1, 3).lowercase()
         if (isSelectable) {
             if (date.dayOfWeek == DayOfWeek.MONDAY) {
-                dayContainer.setBackgroundResource(R.drawable.selected_bg)
-                number.setTextColor(resources.getColor(R.color.white))
-                //week.setTextColor(resources.getColor(R.color.white))
+                dayContainer.setBackgroundResource(R.drawable.today_week_bg)
+                number.setTextColor(resources.getColor(R.color.black))
+                week.setTextColor(resources.getColor(R.color.black))
             } else {
                 number.setTextColor(resources.getColor(R.color.gray))
-                //week.setTextColor(resources.getColor(R.color.gray))
+                week.setTextColor(resources.getColor(R.color.gray))
                 dayContainer.setBackgroundResource(R.drawable.day_bg)
             }
         } else {
             number.setTextColor(resources.getColor(R.color.gray))
-            //week.setTextColor(resources.getColor(R.color.gray))
+            week.setTextColor(resources.getColor(R.color.gray))
             dayContainer.background = null
         }
     }
