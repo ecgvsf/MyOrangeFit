@@ -2,9 +2,6 @@ package com.example.myorangefit.fragment
 
 import android.animation.AnimatorSet
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -40,8 +37,6 @@ import com.example.myorangefit.activity.ManageWorkoutActivity
 import com.example.myorangefit.adapter.ExerciseCalendarAdapter
 import com.example.myorangefit.database.DatabaseHelper
 import com.example.myorangefit.database.DatabaseHelperSingleton
-import com.example.myorangefit.databinding.ActivityMain2Binding
-import com.example.myorangefit.databinding.ActivityMainBinding
 import com.example.myorangefit.databinding.CalendarDayBinding
 import com.example.myorangefit.databinding.FragmentCalendarBinding
 import com.example.myorangefit.model.Workout
