@@ -21,8 +21,12 @@
         android:theme="@style/Theme.MyOrangeFit"
         tools:targetApi="31">
         <activity
+            android:name=".activity.StatisticsWorkoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.LoginActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -31,44 +35,51 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <!--
-<receiver android:name=".PauseResumeReceiver" />
-        <receiver android:name=".StopReceiver" />
+            <receiver android:name=".PauseResumeReceiver" />
+            <receiver android:name=".StopReceiver" />
         -->
         <activity
             android:name=".MapsActivity"
             android:exported="false"
-            android:label="@string/title_activity_maps" />
-        <activity
-            android:name=".MainActivity2"
-            android:exported="false" />
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.SeriesActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".compose.Scale"
             android:exported="false"
             android:label="@string/title_activity_scale"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.MyOrangeFit" />
         <activity
             android:name=".compose.Clock"
             android:exported="false"
             android:label="@string/title_activity_clock"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.MyOrangeFit" />
         <activity
             android:name=".activity.ExerciseSelectionActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.BodyPartActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.AddWorkoutTypeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.ManageWorkoutActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MyOrangeFit.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

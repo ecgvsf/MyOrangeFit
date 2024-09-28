@@ -121,7 +121,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="CHEST"
-                            
+
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/chest_arrow"
@@ -194,7 +194,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="BACK"
-                            
+
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/back_arrow"
@@ -270,7 +270,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="SHOULDERS"
-                            
+
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/shoulders_arrow"
@@ -345,7 +345,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="ARMS"
-                            
+
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/arms_arrow"
@@ -417,7 +417,6 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="LEGS"
-                            
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/legs_arrow"
@@ -488,7 +487,7 @@
                             android:layout_height="match_parent"
                             android:paddingVertical="3.5dp"
                             android:text="ABS"
-                            
+
                             android:textSize="21sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/abs_arrow"

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Stato selezionato (con spunta) -->
+    <item android:state_checked="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/primary"/>
+                    <size
+                        android:width="24dp"
+                        android:height="24dp"/>
+                </shape>
+            </item>
+            <item>
+                <vector xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:width="24dp"
+                    android:height="24dp"
+                    android:viewportWidth="24"
+                    android:viewportHeight="24">
+                    <path
+                        android:fillColor="#00FFFFFF"
+                        android:strokeColor="#FFFFFF"
+                        android:strokeWidth="3"
+                        android:strokeLineJoin="round"
+                        android:strokeLineCap="round"
+                        android:pathData="M5,13 L9,17 L19,7" />
+                </vector>
+            </item>
+        </layer-list>
+
+    </item>
+
+    <!-- Stato non selezionato (senza spunta) -->
+    <item android:state_checked="false">
+        <shape android:shape="oval">
+            <solid android:color="#00FFFFFF" />
+            <stroke
+                android:width="2dp"
+                android:color="#FF9800" />
+            <size
+                android:width="24dp"
+                android:height="24dp" />
+        </shape>
+    </item>
+
+</selector>

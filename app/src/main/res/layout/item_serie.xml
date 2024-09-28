@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/CardViewStyle"
@@ -27,17 +28,19 @@
             android:id="@+id/reps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint="Ripetizioni: 20 "
             android:inputType="number"
-            android:layout_weight="1"/>
+            tools:ignore="TouchTargetSizeCheck" />
 
         <TextView
             android:id="@+id/weight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint="20 (kg)"
             android:inputType="numberDecimal"
-            android:layout_weight="1"/>
+            tools:ignore="TouchTargetSizeCheck" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/trash"

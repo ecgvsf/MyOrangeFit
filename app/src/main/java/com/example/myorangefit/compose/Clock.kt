@@ -2,6 +2,7 @@ package com.example.myorangefit.compose
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -39,6 +40,8 @@ class Clock : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ActivityManager.add(this)
         super.onCreate(savedInstanceState)
+        // Forza l'orientamento in portrait
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),

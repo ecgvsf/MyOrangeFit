@@ -45,10 +45,10 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun WeekCalendar() {
+fun WeekCalendar(trainingDays: MutableList<String>) {
     val currentDate = remember { LocalDate.now() }
-    val startDate = remember { currentDate.minusDays(1) }
-    val endDate = remember { currentDate.plusDays(7) }
+    val startDate = remember { currentDate }
+    val endDate = remember { currentDate }
 
     Column(
         modifier = Modifier
@@ -60,7 +60,7 @@ fun WeekCalendar() {
             startDate = startDate,
             endDate = endDate,
             firstVisibleWeekDate = currentDate,
-            firstDayOfWeek = currentDate.dayOfWeek
+            firstDayOfWeek = DayOfWeek.MONDAY
         )
         // Draw light content on dark background.
         CompositionLocalProvider(LocalContentColor provides darkColorScheme().onSurface) {
@@ -70,7 +70,8 @@ fun WeekCalendar() {
                 calendarScrollPaged = false,
                 userScrollEnabled = false,
                 dayContent = { day ->
-                    Day(day.date, isToday = day.date == currentDate) {}
+                    val isTrainingDay = trainingDays.contains(day.date.toString())
+                    Day(day.date, isToday = day.date == currentDate, isTrainingDay = isTrainingDay) {}
                 },
             )
         }
@@ -83,6 +84,7 @@ private val dateFormatter = DateTimeFormatter.ofPattern("dd")
 private fun Day(
     date: LocalDate,
     isToday: Boolean = false,
+    isTrainingDay: Boolean = false,
     onClick: (LocalDate) -> Unit = {},
 ) {
     val configuration = LocalConfiguration.current
@@ -93,14 +95,18 @@ private fun Day(
         modifier = Modifier
             // If paged scrolling is disabled (calendarScrollPaged = false),
             // you must set the day width on the WeekCalendar!
-            .width(screenWidth / 5)
+            .width(screenWidth / 7)
             .padding(4.dp)
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(color = if (isToday) colorResource(R.color.primary) else colorResource(R.color.trasparent))
             .border(
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(12.dp),
                 width = 1.dp,
-                color = if (isToday) colorResource(R.color.primary) else colorResource(R.color.gray),
+                color = when {
+                    isToday -> colorResource(R.color.primary)
+                    isTrainingDay -> colorResource(R.color.primary)
+                    else -> colorResource(R.color.gray)
+                }
             )
             .wrapContentHeight()
             .clickable { onClick(date) },
@@ -113,17 +119,25 @@ private fun Day(
         ) {
             Text(
                 text = dateFormatter.format(date),
-                fontSize = 32.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
                 fontFamily = customFont?.let { FontFamily(it) },
-                color = if (isToday) colorResource(R.color.white) else colorResource(R.color.gray)
+                color = when {
+                    isToday -> colorResource(R.color.white)
+                    isTrainingDay -> colorResource(R.color.white)
+                    else -> colorResource(R.color.gray)
+                }
             )
             Text(
                 text = date.dayOfWeek.displayText(),
-                fontSize = 16.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = customFont?.let { FontFamily(it) },
-                color = if (isToday) colorResource(R.color.white) else colorResource(R.color.gray)
+                color = when {
+                    isToday -> colorResource(R.color.white)
+                    isTrainingDay -> colorResource(R.color.white)
+                    else -> colorResource(R.color.gray)
+                }
             )
         }
     }
@@ -147,5 +161,5 @@ fun DayOfWeek.displayText(uppercase: Boolean = false): String {
 @Preview
 @Composable
 private fun WeekCalendarPreviw() {
-    WeekCalendar()
+    WeekCalendar(trainingDays = mutableListOf("2024-09-17","2024-09-19"))
 }

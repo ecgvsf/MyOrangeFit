@@ -1,75 +1,47 @@
 package com.example.myorangefit.activity
 
-import android.animation.AnimatorSet
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.ActionBar.LayoutParams
-import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Rect
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
+import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
-import androidx.cardview.widget.CardView
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnStart
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.forEach
-import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.myorangefit.MapsActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.myorangefit.R
-import com.example.myorangefit.adapter.ExerciseCalendarAdapter
+import com.example.myorangefit.async.WorkoutViewModel
+import com.example.myorangefit.async.WorkoutViewModelFactory
 import com.example.myorangefit.database.DatabaseHelper
 import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.databinding.ActivityMainBinding
-import com.example.myorangefit.databinding.CalendarDayBinding
 import com.example.myorangefit.fragment.CalendarFragment
 import com.example.myorangefit.fragment.HomeFragment
 import com.example.myorangefit.fragment.StatisticFragment
 import com.example.myorangefit.fragment.UserFragment
-import com.example.myorangefit.model.Workout
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.internal.ViewUtils.dpToPx
 import com.kizitonwose.calendar.core.*
 import com.kizitonwose.calendar.view.*
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.Month
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.time.temporal.TemporalAdjusters
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var databaseHelper: DatabaseHelper
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var exerciseAdapter: ExerciseCalendarAdapter
+    private lateinit var viewModel: WorkoutViewModel
 
     private lateinit var binding: ActivityMainBinding
 
-    private val selectedDates = mutableSetOf<LocalDate>()
-    private var selectedDate: LocalDate? = null
-    private var isWeekMode = false
     private val today = LocalDate.now()
 
     private val iconSize = 128
@@ -77,8 +49,19 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        installSplashScreen()
         ActivityManager.add(this)
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+
+        databaseHelper = DatabaseHelperSingleton.getInstance(this)
+        val factory = WorkoutViewModelFactory(databaseHelper)
+        viewModel = ViewModelProvider(this, factory).get(WorkoutViewModel::class.java)
+
+        // Load initial data
+        loadData()
+
+        //------------------------------------------------------------------------------------
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -89,10 +72,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         val daysOfWeek = daysOfWeek()
-
-        databaseHelper = DatabaseHelperSingleton.getInstance(this)
-        loadFragment(HomeFragment())
-
 
         val bottomNavigationView = binding.bottomNavigation
 
@@ -121,6 +100,8 @@ class MainActivity : AppCompatActivity() {
                 icon.drawable.setTintList(colorStateList)
                 icon.layoutParams.width = iconSize
                 icon.layoutParams.height = iconSize
+
+
             } else {
                 icon.layoutParams.width = iconSize * 1.5.toInt()
                 icon.layoutParams.height = iconSize * 1.5.toInt()
@@ -163,6 +144,54 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        bottomNavigationView.menu.forEach { menuItem ->
+            val itemView = bottomNavigationView.findViewById<View>(menuItem.itemId)
+
+            // Imposta un listener di tocco per ridurre l'area di tocco
+            itemView.setOnTouchListener { v, event ->
+                // Ottieni le dimensioni del pulsante
+                val height = v.height
+                val touchY = event.y
+
+                // Se l'evento è al di sopra della metà del pulsante, ignora il tocco
+                if (touchY < (height / 3f)) {
+                    // Ignora il tocco nella parte superiore
+                    return@setOnTouchListener true
+                } else {
+                    // Gestisci normalmente l'evento di tocco nella metà inferiore
+                    return@setOnTouchListener false
+                }
+            }
+        }
+
+
+        binding.fab.setOnClickListener{
+            var date = today.toString()
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+            if (fragment is CalendarFragment) {
+                viewModel.selectedData.observe(this) { data ->
+                    date = data.toString()
+                }
+            }
+
+            val intent = Intent(this, BodyPartActivity::class.java)
+            intent.putExtra("selectedDate", date)
+            intent.putExtra("flag", 1)
+            startActivity(intent)
+        }
+
+        loadFragment(HomeFragment())
+    }
+
+    private fun loadData() {
+        val today = LocalDate.now()
+        viewModel.updateData(today)
+        viewModel.loadWorkoutsForDate(today)
+        viewModel.loadAllWorkouts()
+        viewModel.getStreak()
+        viewModel.getWeekWorkout()
+        viewModel.getWeekDates(today)
     }
 
     private fun loadFragment(fragment: Fragment) {

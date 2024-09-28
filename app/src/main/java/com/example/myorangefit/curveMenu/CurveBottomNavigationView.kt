@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
+import com.example.myorangefit.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class CurvedBottomNavigationView @JvmOverloads constructor(
@@ -43,7 +44,11 @@ class CurvedBottomNavigationView @JvmOverloads constructor(
         with(mPaint) {
             style = Paint.Style.FILL_AND_STROKE
             color = Color.DKGRAY
+            setShadowLayer(30f, 0f, 0f, resources.getColor(R.color.opaqueBlack))
         }
+        // Imposta il layer software per supportare l'ombra
+        setLayerType(LAYER_TYPE_SOFTWARE, mPaint)
+
         setBackgroundColor(Color.TRANSPARENT)
     }
 

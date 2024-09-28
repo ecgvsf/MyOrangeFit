@@ -24,17 +24,25 @@ import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.children
+import androidx.core.view.isEmpty
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myorangefit.MapsActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.example.myorangefit.R
-import com.example.myorangefit.activity.BodyPartActivity
+import com.example.myorangefit.activity.MainActivity
 import com.example.myorangefit.activity.ManageWorkoutActivity
 import com.example.myorangefit.adapter.ExerciseCalendarAdapter
+import com.example.myorangefit.adapter.ExerciseFragment
+import com.example.myorangefit.adapter.ExercisePagerAdapter
+import com.example.myorangefit.adapter.FadeItemAnimator
+import com.example.myorangefit.async.WorkoutViewModel
+import com.example.myorangefit.async.WorkoutViewModelFactory
 import com.example.myorangefit.database.DatabaseHelper
 import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.databinding.CalendarDayBinding
@@ -55,8 +63,15 @@ class CalendarFragment : Fragment() {
     private lateinit var today: LocalDate
 
     private lateinit var databaseHelper: DatabaseHelper
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var exerciseAdapter: ExerciseCalendarAdapter
+    private lateinit var viewModel: WorkoutViewModel
+
+    private lateinit var dateBodyPartMap: MutableMap<LocalDate, MutableSet<String>>
+
+    //private lateinit var recyclerView: RecyclerView
+    //private lateinit var exerciseAdapter: ExerciseCalendarAdapter
+
+    private lateinit var viewPager: ViewPager2
+    private var nItems = 4
 
     // ViewBinding
     private var _binding: FragmentCalendarBinding? = null
@@ -66,9 +81,9 @@ class CalendarFragment : Fragment() {
     private lateinit var weekCalendarView: WeekCalendarView
     private lateinit var cardView: CardView
 
-    private val selectedDates = mutableSetOf<LocalDate>()
     private var selectedDate: LocalDate? = null
     private var isWeekMode = false
+    var isSelectionMode: Boolean = false
 
     private lateinit var numDayTextView: TextView
     private lateinit var weekDayTextView: TextView
@@ -81,19 +96,24 @@ class CalendarFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         today = (arguments?.getSerializable("today") as? LocalDate)!!
+
+
+        contx = requireContext()
+        databaseHelper = DatabaseHelperSingleton.getInstance(contx)
+        viewModel = ViewModelProvider(requireActivity())[WorkoutViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
 
         monthCalendarView = binding.exOneCalendar
         weekCalendarView = binding.exOneWeekCalendar
 
-        contx = requireContext()
+
         return binding.root
     }
 
@@ -101,17 +121,52 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val daysOfWeek = daysOfWeek()
+        viewPager = binding.pager
 
-        binding.exOneMonthText.setOnClickListener {
-            val i = Intent(contx, MapsActivity::class.java)
-            startActivity(i)
+        calculateItemsPerPage { itemsPerPage ->
+            viewModel.setNItems(itemsPerPage)
         }
 
-        databaseHelper = DatabaseHelperSingleton.getInstance(contx)
+        viewModel.nItems.observe(viewLifecycleOwner) { num ->
+            nItems = num
+            Log.e("sss", "$nItems, $num")
+            nItems = 4
+        }
 
-        recyclerView = binding.recyclerViewExercise
-        recyclerView.layoutManager = LinearLayoutManager(contx)
+        viewModel.allWorkouts.observe(viewLifecycleOwner) { workoutMap ->
+            dateBodyPartMap = workoutMap
+        }
+
+        viewModel.selectedData.observe(viewLifecycleOwner) { selected ->
+            selectedDate = selected
+            viewModel.loadWorkoutsForDate(selected)
+        }
+
+        // Osserva gli allenamenti caricati e chiamare displayWorkouts per visualizzarli
+        viewModel.workoutsForDate.observe(viewLifecycleOwner) { workoutsForDate ->
+            val selectedDate = viewModel.selectedData.value
+            val workouts = workoutsForDate[selectedDate] ?: emptyList()
+
+            displayWorkouts(workouts.toMutableList())
+            updateTitle()
+            if (selectedDate != null) {
+                updateDayInfo(selectedDate)
+            }
+
+            // Crea l'adapter per il ViewPager2
+            val exerciseData =
+                workouts.chunked(nItems).map { it.toMutableList() }.toMutableList()
+            val d = selectedDate ?: today
+
+            val exercisePagerAdapter =
+                ExercisePagerAdapter(requireActivity(), exerciseData, d, isWeekMode)
+            viewPager.adapter = exercisePagerAdapter
+            // Imposta il limite delle pagine fuori schermo
+            if (workouts.isNotEmpty())
+                viewPager.setOffscreenPageLimit(exerciseData.size)
+        }
+
+        val daysOfWeek = daysOfWeek()
 
         numDayTextView = binding.numDay
         weekDayTextView = binding.weekDay
@@ -122,10 +177,12 @@ class CalendarFragment : Fragment() {
             height = screenHeight
         }
         cardView.updateLayoutParams<RelativeLayout.LayoutParams> {
-            bottomMargin = -screenHeight / 3
+            bottomMargin = -90
         }
 
-        cardView.setOnTouchListener(cardViewTouchListener)
+        binding.lineContainer.setOnTouchListener(cardViewTouchListener)
+        //monthCalendarView.setOnTouchListener(cardViewTouchListener)
+        //weekCalendarView.setOnTouchListener(cardViewTouchListener)
 
         binding.legendLayout.root.children
             .map { it as TextView }
@@ -135,24 +192,24 @@ class CalendarFragment : Fragment() {
             }
 
         val currentMonth = YearMonth.now()
-        val startMonth = currentMonth.minusMonths(100)
-        val endMonth = currentMonth.plusMonths(100)
+        val startMonth = currentMonth.minusMonths(60)
+        val endMonth = currentMonth.plusMonths(3)
         setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
         setupWeekCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
+
 
         monthCalendarView.isInvisible = isWeekMode
         weekCalendarView.isInvisible = !isWeekMode
 
-        val w = loadWorkoutsForDate(today)
-        displayWorkouts(contx, w)
-        updateTitle()
-        updateDayInfo(today)
+        if (viewModel.selectedData.value?.month != today.month) {
+            viewModel.selectedData.value?.let { scroll(it) }
+        }
 
         cardView.post {
             expandedPosition = weekCalendarView.bottom.toFloat()
             collapsedPosition = monthCalendarView.bottom.toFloat() + 32f
             cardView.y = collapsedPosition
-            adjustRecyclerViewHeight()
+            adjustPagerHeight()
         }
 
         Log.d("dataaaa", "$screenHeight, ${cardView.layoutParams.height}")
@@ -166,21 +223,61 @@ class CalendarFragment : Fragment() {
 
         Log.d("dataaaaa", "$screenHeight, ${cardView.layoutParams.height}")
 
-        binding.fab.setOnClickListener {
-            val date = (selectedDate ?: today).toString()
-            val intent = Intent(contx, BodyPartActivity::class.java)
-            intent.putExtra("selectedDate", date)
-            intent.putExtra("flag", 1)
-            startActivity(intent)
-        }
-
         binding.manageWorkoutsButton.setOnClickListener {
             val intent = Intent(contx, ManageWorkoutActivity::class.java)
             startActivity(intent)
         }
 
+        binding.selectButton.setOnClickListener {
+            val map = viewModel.workoutsForDate.value
+            map?.let {
+                val workouts = map[selectedDate] ?: emptyList()
+                if (workouts.isNotEmpty())
+                    selectionMode()
+            }
+        }
+
+        binding.dayLayout.setOnClickListener { scrollToday() }
         binding.left.setOnClickListener { scroll(-1) }
         binding.right.setOnClickListener { scroll(1) }
+
+
+        binding.trashButton.setOnClickListener {
+            val adapter = viewPager.adapter as? ExercisePagerAdapter
+            adapter?.let {
+                val empty = adapter.removeAndShiftItem()
+                if (empty) {
+                    displayWorkouts(mutableListOf())
+                    viewModel.getStreak()
+                    viewModel.getWeekWorkout()
+                    viewModel.getWeekDates(today)
+                }
+                viewModel.reloadDayAllWorkout(selectedDate!!)
+                viewModel.allWorkouts.observe(viewLifecycleOwner) {
+                    monthCalendarView.notifyDateChanged(selectedDate!!)
+                    weekCalendarView.notifyDateChanged(selectedDate!!)
+                }
+            }
+            selectionMode()
+
+        }
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------------------------------
+    /* ------------------------------------------------------- Per Scorrere il calendario ------------------------------------------------------ */
+
+    private fun scrollToday() {
+        monthCalendarView.scrollToMonth(today.yearMonth)
+        weekCalendarView.scrollToWeek(today)
+
+        dateClicked(today)
+    }
+
+    private fun scroll(date: LocalDate) {
+        monthCalendarView.scrollToMonth(date.yearMonth)
+        weekCalendarView.scrollToWeek(date)
+
+        dateClicked(date)
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -217,6 +314,8 @@ class CalendarFragment : Fragment() {
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+
+
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialTouchY = event.rawY
@@ -231,7 +330,21 @@ class CalendarFragment : Fragment() {
                 MotionEvent.ACTION_UP -> {
                     val deltaY = event.rawY - initialTouchY
                     // Determina se l'utente vuole passare alla modalità mensile o settimanale
-                    val newMode = if (deltaY < 0) true else false
+                    val newMode = if (deltaY < 0) {
+                        true
+                    }
+                    else if (deltaY > 0) {
+                        val adapter = viewPager.adapter as? ExercisePagerAdapter
+
+                        // Verifica se l'adapter non è null
+                        adapter?.let {
+                            if (isSelectionMode)
+                                selectionMode()
+                        }
+                        false
+                    }
+                    else
+                        return false
 
                     // Verifica se la nuova modalità è diversa dall'attuale
                     if (newMode != isWeekMode) {
@@ -242,9 +355,9 @@ class CalendarFragment : Fragment() {
                             View.GONE
                         }
                         binding.selectButton.visibility = visibility
-                        binding.editButton.visibility = visibility
                         animateCalendar()
                         updateTitle()
+
                     }
                     return true
                 }
@@ -294,7 +407,12 @@ class CalendarFragment : Fragment() {
                     weekCalendarView.isInvisible = true
                     monthCalendarView.isVisible = true
                 }
-                adjustRecyclerViewHeight()
+                val adapter = viewPager.adapter as ExercisePagerAdapter
+                for (i in 0..adapter.itemCount) {
+                    adapter.toggleExpansion(i,isWeekMode)
+                }
+                adjustPagerHeight()
+                //adjustRecyclerViewItem()
             }
             doOnEnd {
                 if (isWeekMode) {
@@ -325,6 +443,49 @@ class CalendarFragment : Fragment() {
 
         animatorSet.start()
         Log.d("dataaaaa", "${cardView.height}")
+    }
+
+    /*
+    private fun adjustRecyclerViewItem() {
+        // Ottieni l'adapter dal RecyclerView
+        val adapter = recyclerView.adapter as? ExerciseCalendarAdapter
+
+        // Verifica se l'adapter non è null
+        adapter?.let {
+            // Itera sugli item visibili del RecyclerView
+            for (i in 0 until recyclerView.childCount) {
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as? ExerciseCalendarAdapter.ExerciseCalendarViewHolder
+                viewHolder?.let { holder ->
+                    // Chiama toggleExpansion per ciascun item visibile
+                    adapter.toggleExpansion(holder, isWeekMode)
+                } ?: run {
+                    adapter.notifyItemChanged(i)
+                }
+            }
+        }
+    }
+    */
+
+    private fun selectionMode() {
+        // Ottieni l'adapter dal RecyclerView
+        val adapter = viewPager.adapter as? ExercisePagerAdapter
+
+        // Verifica se l'adapter non è null
+        adapter?.let {
+            if (isSelectionMode) {
+                adapter.setSwipe(true)
+                binding.trashButton.visibility = View.GONE
+                //binding.editButton.visibility = View.GONE
+            } else {
+                adapter.setSwipe(false)
+                binding.trashButton.visibility = View.VISIBLE
+                //binding.editButton.visibility = View.VISIBLE
+            }
+            for (i in 0..adapter.itemCount)
+                adapter.toggleSelection(i, isSelectionMode)
+
+            isSelectionMode = !isSelectionMode
+        }
     }
 
     private fun LocalDate.startOfWeek(): LocalDate {
@@ -419,7 +580,7 @@ class CalendarFragment : Fragment() {
         textView.text = date.dayOfMonth.toString()
         if (isSelectable) {
             when {
-                selectedDates.contains(date) -> {
+                selectedDate == date -> {
                     dayContainer.setBackgroundResource(R.drawable.selected_bg)
                     textView.setTextColor(Color.WHITE) // Colore del testo selezionato
                 }
@@ -441,8 +602,6 @@ class CalendarFragment : Fragment() {
                 "5" to getColor(contx, R.color.shouldersColor),
                 "6" to getColor(contx, R.color.absColor)
             )
-
-            val dateBodyPartMap = loadWorkouts()
 
             // Aggiungi i pallini per le parti del corpo allenate in questo giorno
             val bodyParts = dateBodyPartMap[date] ?: emptySet()
@@ -466,111 +625,88 @@ class CalendarFragment : Fragment() {
     }
 
     private fun dateClicked(date: LocalDate) {
-        val previousDate = selectedDate
-        selectedDate = date
+        if (date == selectedDate) return
 
-        // Svuota la selezione esistente e aggiungi la nuova data
-        selectedDates.clear()
-        selectedDates.add(date)
+        {
+            TODO(
+                "da correggere l'aggiornamento della grafica del giorno " +
+                        "selezionato che a volte si bugga quando cambi giorno rapidamente"
+            )
+        }
+
+        isSelectionMode = false
+
+        binding.trashButton.visibility = View.GONE
+        //binding.editButton.visibility = View.GONE
+
+        val previousDate = selectedDate
+
+        viewModel.updateData(date)
 
         // Refresh both calendar views..
-        if (previousDate != null) {
-            monthCalendarView.notifyDateChanged(previousDate)
-            weekCalendarView.notifyDateChanged(previousDate)
+        previousDate?.let {
+            monthCalendarView.notifyDateChanged(it)
+            weekCalendarView.notifyDateChanged(it)
+            Log.e("sss", "changing $previousDate, $date")
         }
         monthCalendarView.notifyDateChanged(date)
         weekCalendarView.notifyDateChanged(date)
-
-        updateDayInfo(date)
-
-        val workout = loadWorkoutsForDate(date)
-        displayWorkouts(contx, workout)
-    }
-
-    //---------------------------------------------------------------------------------------------------------------------------------------------
-    /* ---------------------------------------------- Per Caricare gli Allenamenti nel Calendario ---------------------------------------------- */
-
-    private fun loadWorkouts():  MutableMap<LocalDate, MutableSet<String>>{
-        // Carica gli allenamenti dal database e aggiorna il calendario
-        // Esegui il cerchietto colorato per i giorni con allenamenti
-        val workoutCalendar = databaseHelper.getAllWorkoutCalendar()
-        val dates = mutableSetOf<LocalDate>()
-        val dateBodyPartMap = mutableMapOf<LocalDate, MutableSet<String>>()
-
-        for (w in workoutCalendar) {
-            val workout = databaseHelper.getWorkoutById(w.idWorkout)
-            val date = LocalDate.parse(w.date)
-            dates.add(date)
-            if (!(dateBodyPartMap.containsKey(date))) {
-                dateBodyPartMap[date] = mutableSetOf()
-            }
-            workout?.bodyPart?.let { dateBodyPartMap[date]!!.add(it) }
-        }
-
-        return dateBodyPartMap
-
-        /*
-        // Aggiungi decoratori solo se non esiste già un decoratore per quel giorno
-        val existingDecorators = mutableSetOf<LocalDate>()
-        dateBodyPartMap.forEach { (day, bodyParts) ->
-            if (day !in existingDecorators) {
-                val bodyPartColors = bodyParts.mapNotNull { colorMap[it] }
-                ///calendarView.addDecorator(EventDecorator(setOf(day), bodyPartColors))
-                existingDecorators.add(day)
-            }
-        }
-         */
     }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------
     /* -------------------------------------------- Per Caricare gli Allenamenti nel Recycler View -------------------------------------------- */
 
-    private fun loadWorkoutsForDate(date: LocalDate): MutableList<Workout> {
-        val dateStr = date.toString()
-        val workoutsId = databaseHelper.getWorkoutsIdForDate(dateStr)
-        val workout = mutableListOf<Workout>()
-        for (id in workoutsId) {
-            databaseHelper.getWorkoutById(id)?.let {
-                if (!workout.contains(it))
-                    workout.add(it)
-            }
-        }
-
-        return workout
-    }
-
-    private fun displayWorkouts(context: Context, workout: MutableList<Workout>) {
-        val list = binding.recyclerViewExercise
+    private fun displayWorkouts(workout: MutableList<Workout>) {
         if (workout.isNotEmpty()) {
             binding.title.visibility = View.GONE
         } else {
             binding.title.visibility = View.VISIBLE
         }
-        exerciseAdapter = ExerciseCalendarAdapter(context, workout)
-        list.adapter = exerciseAdapter
+
+        // Imposta lo stato espanso o contratto nell'adapter in base alla modalità corrente
+        //exerciseAdapter.setExpandedMode(isWeekMode)
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
     /* ---------------------------------------------- Per adattare l'altezza del RecyclerView ----------------------------------------------- */
 
-    private fun adjustRecyclerViewHeight() {
-        val screenHeight = resources.displayMetrics.heightPixels
-        val cardViewH = cardView.height
-        val availableHeight = screenHeight - cardViewH
 
-        // DA RIFARE
-        Log.d("dataaa", "1 $isWeekMode, $cardViewH $screenHeight $availableHeight, ${recyclerView.height}")
+    private fun adjustPagerHeight() {
         if (!isWeekMode)
-            recyclerView.updateLayoutParams<LinearLayout.LayoutParams> {
-                height = LayoutParams.WRAP_CONTENT
+            viewPager.updateLayoutParams<LinearLayout.LayoutParams> {
+                height = (resources.getDimension(R.dimen.month_item_height).toInt() + 16.dpToPx(contx)) * nItems
             }
         else
-            recyclerView.updateLayoutParams<LinearLayout.LayoutParams> {
-                height = LayoutParams.WRAP_CONTENT
+            viewPager.updateLayoutParams<LinearLayout.LayoutParams> {
+                height = LayoutParams.MATCH_PARENT
             }
-
-        Log.d("dataaa", "2 $isWeekMode, $cardViewH $screenHeight $availableHeight, ${recyclerView.height}")
     }
+
+    private fun calculateItemsPerPage(onCalculated: (Int) -> Unit) {
+        // Usa post per ottenere l'altezza della root view dopo che è stata disegnata
+        binding.root.post {
+            val frameHeight = binding.root.height
+            val weekCalendarHeight = weekCalendarView.height
+
+            val wLocation = IntArray(2)
+            weekCalendarView.getLocationOnScreen(wLocation)
+
+            val hWeek = wLocation[1] + weekCalendarHeight
+
+            // Calcola l'altezza disponibile per il RecyclerView
+            val cardHeightWeek = frameHeight - hWeek
+            val recyclerViewWeekHeight = cardHeightWeek - 40.dpToPx(contx) - 20.dpToPx(contx)
+
+            // Calcola il numero di item visibili nel RecyclerView
+            val itemWeek = recyclerViewWeekHeight / 85.dpToPx(contx)
+
+            Log.e("sss", "w: $itemWeek, $frameHeight")
+
+            // Usa il callback per restituire il valore
+            onCalculated(itemWeek)
+        }
+    }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
     /* ------------------------------------------------- Per Aggiornare le Info nella AppBar ------------------------------------------------- */
@@ -614,8 +750,30 @@ class CalendarFragment : Fragment() {
         }
     }
 
+    fun Int.dpToPx(context: Context): Int {
+        val density = context.resources.displayMetrics.density
+        return (this * density).toInt()
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.lineContainer.setOnTouchListener(null)
+        //monthCalendarView.setOnTouchListener(null)
+        //weekCalendarView.setOnTouchListener(null)
+        binding.manageWorkoutsButton.setOnClickListener (null)
+        binding.selectButton.setOnClickListener(null)
+        binding.dayLayout.setOnClickListener (null)
+        binding.left.setOnClickListener (null)
+        binding.right.setOnClickListener (null)
+        monthCalendarView.viewTreeObserver.removeOnGlobalLayoutListener {
+            collapsedPosition = monthCalendarView.bottom.toFloat()
+            if (isWeekMode) {
+                cardView.y = collapsedPosition
+            }
+        }
         _binding = null
+
     }
 }

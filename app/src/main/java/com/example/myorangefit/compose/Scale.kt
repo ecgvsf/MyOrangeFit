@@ -2,6 +2,7 @@ package com.example.myorangefit.compose
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
@@ -55,6 +56,8 @@ class Scale : ComponentActivity() {
         ActivityManager.add(this)
         ActivityManager.add(this)
         super.onCreate(savedInstanceState)
+        // Forza l'orientamento in portrait
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             ScaleTheme {
                 WeightPickerApp(this)

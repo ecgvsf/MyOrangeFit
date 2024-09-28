@@ -28,17 +28,20 @@
         app:labelVisibilityMode="unlabeled"
         app:itemBackground="@drawable/no_ripple"
         app:itemIconTint="@color/color_state_list"
-        android:layout_margin="16dp"/>
+        android:layout_margin="16dp"
+        android:clickable="true"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal|bottom"
-    app:fabCustomSize="70dp"
-    android:layout_marginBottom="35dp"
-    android:backgroundTint="@color/primary"
-    android:src="@drawable/ic_add"
-    app:maxImageSize="24dp"
-    app:shapeAppearance="@style/ShapeFAB" />
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:contentDescription="add"
+        app:fabCustomSize="70dp"
+        android:layout_marginBottom="35dp"
+        android:backgroundTint="@color/primary"
+        android:src="@drawable/ic_add"
+        app:maxImageSize="24dp"
+        app:shapeAppearance="@style/ShapeFAB" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

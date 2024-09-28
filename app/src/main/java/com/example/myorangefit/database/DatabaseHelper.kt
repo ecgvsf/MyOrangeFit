@@ -6,13 +6,16 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
+import android.util.Log
 import com.example.myorangefit.model.BodyPart
+import com.example.myorangefit.model.Serie
 import com.example.myorangefit.model.Workout
 import com.example.myorangefit.model.WorkoutCalendar
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.LocalDate
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
@@ -315,11 +318,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.insert("Series", null, values)
     }
 
+    fun deleteWorkoutCalendar(id: Int, date: String): Boolean {
+        val db = writableDatabase
+        deleteSeries(id, date)
+        val deletedRows = db.delete("WorkoutCalendar", "id_workout=? and date=?", arrayOf(id.toString(), date))
+        return deletedRows > 0
+    }
+
+    private fun deleteSeries(id: Int, date: String): Boolean {
+        val db = writableDatabase
+        val deletedRows = db.delete("Series", "workout_id=? and date=?", arrayOf(id.toString(), date))
+        return deletedRows > 0
+    }
+
     // Metodo per eliminare un esercizio dal database
     fun deleteWorkout(workoutId: Int): Boolean {
         val db = writableDatabase
         val deletedRows = db.delete("workout", "id=?", arrayOf(workoutId.toString()))
-        db.close()
         return deletedRows > 0
     }
 
@@ -342,7 +357,181 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return affectedRows > 0
     }
 
+    fun getSeries(workoutId: Int, date: String): MutableList<Serie> {
+        val db = readableDatabase
+        val seriesList = mutableListOf<Serie>()
+        val query = """
+            SELECT rep, peso, tempo FROM Series
+            WHERE workout_id = ? and date = ?
+            ORDER by series_number
+        """.trimIndent()
 
+        val cursor = db.rawQuery(query, arrayOf(workoutId.toString(), date))
+
+        while (cursor.moveToNext()) {
+            val rep = cursor.getInt(cursor.getColumnIndexOrThrow("rep"))
+            val peso = cursor.getInt(cursor.getColumnIndexOrThrow("peso"))
+            val tempo = cursor.getInt(cursor.getColumnIndexOrThrow("tempo"))
+
+            seriesList.add(Serie(rep, peso, tempo))
+        }
+        cursor.close()
+
+        return seriesList
+    }
+
+
+    fun getSeriesByWorkoutnDate(workoutId: Int, date: LocalDate): Triple<Int, Int, Int> {
+        val db = readableDatabase
+        val formattedDate = date.toString() // Converti la data nel formato stringa
+
+        val query = """
+        SELECT COUNT(*), AVG(rep), AVG(peso)
+        FROM Series
+        WHERE workout_id = ? AND date = ?
+    """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(workoutId.toString(), formattedDate))
+
+        var count = 0
+        var avgRep = 0
+        var avgPeso = 0
+
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0)
+            avgRep = cursor.getInt(1)
+            avgPeso = cursor.getInt(2)
+        }
+
+        cursor.close()
+        return Triple(count, avgRep, avgPeso)
+    }
+
+    fun getWeekWorkout(date: LocalDate): MutableList<String> {
+        val db = readableDatabase
+        var datesList = mutableListOf<String>()
+
+        // Converte la data in stringa per usarla nella query
+        val startOfWeek = date.minusDays(date.dayOfWeek.value.toLong() - 1).toString() // Inizio della settimana (lunedì)
+        val endOfWeek = date.plusDays(7 - date.dayOfWeek.value.toLong()).toString() // Fine della settimana (domenica)
+
+        val query = """
+            SELECT DISTINCT date 
+            FROM WorkoutCalendar wc
+            WHERE date >= ? -- Inizio della settimana
+              AND date <= ?; -- Fine della settimana
+        """
+
+        val cursor = db.rawQuery(query, arrayOf(startOfWeek, endOfWeek))
+        while (cursor.moveToNext()) {
+            val data = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            datesList.add(data)
+        }
+        cursor.close()
+
+        return datesList
+    }
+
+    // Metodo per constare gli allenamenti settimanali
+    fun getConutWeekWorkout(date: LocalDate): Int {
+        val db = readableDatabase
+        var countWorkout = 0
+
+        // Converte la data in stringa per usarla nella query
+        val startOfWeek = date.minusDays(date.dayOfWeek.value.toLong() - 1).toString() // Inizio della settimana (lunedì)
+        val endOfWeek = date.plusDays(7 - date.dayOfWeek.value.toLong()).toString() // Fine della settimana (domenica)
+
+        val query = """
+            SELECT COUNT(DISTINCT date) AS workout_count
+            FROM WorkoutCalendar wc
+            WHERE date >= ? -- Inizio della settimana
+              AND date <= ?; -- Fine della settimana
+        """
+
+        val cursor = db.rawQuery(query, arrayOf(startOfWeek, endOfWeek))
+        if (cursor.moveToFirst()) {
+            countWorkout = cursor.getInt(cursor.getColumnIndexOrThrow("workout_count"))
+        }
+        cursor.close()
+
+        return countWorkout
+    }
+
+
+    // Metodo per contare la streak più recente
+    fun getStreak(date: LocalDate): Int {
+        val db = readableDatabase
+        var today = 0
+
+        // Converte la data in stringa per usarla nella query
+        val dateString = date.toString()
+
+        // Query per vedere se oggi mi sono allenato
+            var query = """
+            SELECT COUNT(DISTINCT date) as c
+            FROM WorkoutCalendar wc
+            WHERE date = ?; -- Data passata
+        """
+
+        // Eseguo la query
+        var cursor = db.rawQuery(query, arrayOf(dateString))
+
+        // Recupero il risultato dalla query
+        if (cursor.moveToFirst()) {
+            today = cursor.getInt(cursor.getColumnIndexOrThrow("c"))
+        }
+        cursor.close()
+
+        //controllo se la streak può iniziare (se "ieri" c'è un allenamento)
+        val yesterday = date.minusDays(1).toString()
+
+        // Verifica se ieri c'è stato un allenamento
+        val checkYesterdayQuery = """
+            SELECT COUNT(DISTINCT date) as c
+            FROM WorkoutCalendar
+            WHERE date = ?;
+        """
+        val yesterdayCursor = db.rawQuery(checkYesterdayQuery, arrayOf(yesterday))
+        var yesterdayWorkout = if (yesterdayCursor.moveToFirst()) {
+            yesterdayCursor.getInt(yesterdayCursor.getColumnIndexOrThrow("c"))
+        } else {
+            0
+        }
+        yesterdayCursor.close()
+
+        if (yesterdayWorkout != 0) {
+            // La query per contare la serie più recente di giorni consecutivi con workout
+            query = """
+                WITH RECURSIVE recent_streak AS (
+                    SELECT date(?, '-1 day') AS date
+                    UNION ALL
+                    SELECT date(date, '-1 day')
+                    FROM recent_streak
+                    WHERE EXISTS (
+                        SELECT 1 
+                        FROM WorkoutCalendar wc
+                        WHERE wc.date = date(recent_streak.date, '-1 day')
+                    )
+                )
+                SELECT COUNT(*) AS consecutive_days_count
+                FROM recent_streak
+                WHERE date IN (SELECT date FROM WorkoutCalendar);
+            """
+
+            // Eseguo la query
+            cursor = db.rawQuery(query, arrayOf(dateString))
+
+            // Recupero il risultato dalla query
+            if (cursor.moveToFirst()) {
+                yesterdayWorkout =
+                    cursor.getInt(cursor.getColumnIndexOrThrow("consecutive_days_count"))
+            }
+
+            cursor.close()
+        }
+
+        return yesterdayWorkout + today
+    }
 
 
     // Metodo per eseguire il backup del database

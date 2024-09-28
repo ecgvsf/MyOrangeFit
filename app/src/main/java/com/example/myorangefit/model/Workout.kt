@@ -1,12 +1,45 @@
 package com.example.myorangefit.model
 
+import android.os.Parcel
+import android.os.Parcelable
+
 data class Workout(
     val id: Int,
     var name: String,
     val bodyPart: String,
     val type: Int, //0 tempo, 1 peso
     val image: String
-)
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readInt(),
+        parcel.readString() ?: ""
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeString(name)
+        parcel.writeString(bodyPart)
+        parcel.writeInt(type)
+        parcel.writeString(image)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Workout> {
+        override fun createFromParcel(parcel: Parcel): Workout {
+            return Workout(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Workout?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 
 
 /*

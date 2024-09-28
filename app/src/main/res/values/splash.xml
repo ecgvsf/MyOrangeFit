@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MyOrangeFit.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="postSplashScreenTheme">@style/Base.Theme.MyOrangeFit</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
+        <item name="windowSplashScreenAnimationDuration">1500</item>
+    </style>
+</resources>

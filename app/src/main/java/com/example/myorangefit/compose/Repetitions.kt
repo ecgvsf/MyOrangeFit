@@ -2,6 +2,7 @@ package com.example.myorangefit.compose
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Paint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,7 +36,8 @@ class CircularNumberPickerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ActivityManager.add(this)
         super.onCreate(savedInstanceState)
-
+        // Forza l'orientamento in portrait
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         val data = intent.getStringExtra("date").orEmpty()
         val id = intent.getIntExtra("workout_id", -1)
         val weight = intent.getIntExtra("weight", -1)

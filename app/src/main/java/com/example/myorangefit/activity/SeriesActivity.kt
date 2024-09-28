@@ -35,6 +35,7 @@ class SeriesActivity : AppCompatActivity() {
 
         databaseHelper = DatabaseHelper(this)
 
+        val flagEdit = intent.getIntExtra("edit", 0)
         val data = intent.getStringExtra("date").orEmpty()
         val id = intent.getIntExtra("id_workout", -1)
         val workout = databaseHelper.getWorkoutById(id)
@@ -45,6 +46,20 @@ class SeriesActivity : AppCompatActivity() {
         // Inizializza la RecyclerView
         val recyclerView = findViewById<RecyclerView>(R.id.series_container)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        if (flagEdit == 1) {
+            val list = databaseHelper.getSeries(id, data)
+            if (workout!!.type == 1) {
+                list.forEach { serie ->
+                    seriesList.add(Pair(serie.weight.toFloat(), serie.rep))
+                }
+            } else {
+                list.forEach { serie ->
+                    seriesList.add(Pair(-7f, serie.time))
+                }
+            }
+        }
+
         seriesAdapter = SeriesAdapter(seriesList)
         recyclerView.adapter = seriesAdapter
 
@@ -102,6 +117,9 @@ class SeriesActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             if (seriesList.isNotEmpty()) {
                 val notes = findViewById<EditText>(R.id.general_notes).text.toString()
+                if (flagEdit == 1) {
+                    databaseHelper.deleteWorkoutCalendar(id, data)
+                }
                 databaseHelper.insertWorkoutInCalendar(id, data, notes)
                 var position = 0
                 for (serie: Pair<Float, Int> in seriesList) {

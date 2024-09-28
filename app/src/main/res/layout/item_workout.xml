@@ -64,7 +64,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 app:tint="@color/white"
-                android:src="@drawable/ic_modify"
+                android:src="@drawable/ic_edit"
                 android:padding="2dp"
                 android:layout_margin="4dp"/>
         </androidx.cardview.widget.CardView>
