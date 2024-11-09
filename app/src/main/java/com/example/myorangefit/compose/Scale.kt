@@ -58,20 +58,21 @@ class Scale : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // Forza l'orientamento in portrait
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val crtReps = intent.getIntExtra("crtReps", 20)
+        val crtWeight = intent.getFloatExtra("crtWeight", 20f)
         setContent {
             ScaleTheme {
-                WeightPickerApp(this)
+                WeightPickerApp(this, crtWeight, crtReps)
             }
         }
     }
 }
 
-@Preview
 @Composable
-fun WeightPickerApp(scale: Scale? = null) {
-    var weight by remember { mutableFloatStateOf(20f) }
+fun WeightPickerApp(scale: Scale? = null, crtWeight: Float, crtReps: Int) {
+    var weight by remember { mutableFloatStateOf(crtWeight) }
     var showDialog by remember { mutableStateOf(false) }
-    var count by remember { mutableIntStateOf(20) }
+    var count by remember { mutableIntStateOf(crtReps) }
     val customFont = ResourcesCompat.getFont(LocalContext.current, R.font.comfortaa)
     val dialogBackgroundColor = Color(0xFF3A3A3A)
 
@@ -84,6 +85,7 @@ fun WeightPickerApp(scale: Scale? = null) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             WeightPicker(
+                initialWeight = weight,
                 onWeightChange = { newWeight ->
                     weight = newWeight.coerceIn(0f ,150f)
                 }
@@ -209,7 +211,7 @@ fun ScaleTheme(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun WeightPicker(onWeightChange: (Float) -> Unit) {
+fun WeightPicker(onWeightChange: (Float) -> Unit, initialWeight: Float) {
 
     val outerRadius = 450f
     val middleRadius = 390f
@@ -219,7 +221,7 @@ fun WeightPicker(onWeightChange: (Float) -> Unit) {
     val markerLength = 20f
     //val textRadius = innerRadius / 2
 
-    var rotationAngle by remember { mutableFloatStateOf(-19f) }
+    var rotationAngle by remember { mutableFloatStateOf(-initialWeight*150/160) }
     val customFont = ResourcesCompat.getFont(LocalContext.current, R.font.comfortaa)
 
 
@@ -486,4 +488,10 @@ fun MyButton(modifier: Modifier = Modifier, text: String, fontSize: Float = 20f,
             fontSize = fontSize.sp
         )
     }
+}
+
+@Preview
+@Composable
+fun Preview() {
+    WeightPickerApp(Scale(), 20f,20)
 }

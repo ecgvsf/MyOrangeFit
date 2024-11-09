@@ -240,6 +240,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return workoutIds
     }
 
+    fun getWorkoutsCalendarWeightById(id: Int): MutableList<Pair<String,Int>> {
+        val workoutIds = mutableListOf<Pair<String,Int>>()
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT date, AVG(peso) AS peso_medio FROM Series WHERE workout_id = ? GROUP BY date",
+            arrayOf(id.toString())
+        )
+        while (cursor.moveToNext()) {
+            val date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            val avgP = cursor.getInt(cursor.getColumnIndexOrThrow("peso_medio"))
+            workoutIds.add(Pair(date,avgP))
+        }
+        cursor.close()
+
+        return workoutIds
+    }
+
     fun getWorkoutsCalendarByMonths(currentYear: String, currentMonth: String): List<WorkoutCalendar> {
         val db = readableDatabase
         val workoutCalendarList = mutableListOf<WorkoutCalendar>()

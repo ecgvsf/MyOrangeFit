@@ -28,6 +28,10 @@ class SeriesActivity : AppCompatActivity() {
     private lateinit var seriesAdapter: SeriesAdapter
     private val seriesList = mutableListOf<Pair<Float, Int>>()
 
+    private var crtWeight = 20f
+    private var crtReps = 20
+    private var crtTime = 15
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityManager.add(this)
@@ -74,6 +78,9 @@ class SeriesActivity : AppCompatActivity() {
                     // Aggiorna la UI con il risultato della Scale Activity
                     seriesList.add(Pair(weight, reps))
                     seriesAdapter.notifyItemInserted(seriesList.size-1)
+                    // Aggiorna il valore delle variabili
+                    crtWeight = if (weight != -1f) weight else crtWeight
+                    crtReps = if (reps != -1) reps else crtReps
                 }
             }
         }
@@ -88,6 +95,8 @@ class SeriesActivity : AppCompatActivity() {
                     // Aggiorna la UI con il risultato dell'Another Activity
                     seriesList.add(Pair(-7f, time))
                     seriesAdapter.notifyItemInserted(seriesList.size-1)
+                    // Aggiorna le variabili
+                    crtTime = if (time != -1) time else crtTime
                 }
             }
         }
@@ -97,10 +106,13 @@ class SeriesActivity : AppCompatActivity() {
             when (workout?.type) {
                 1 -> {
                     val intent = Intent(this@SeriesActivity, Scale::class.java)
+                    intent.putExtra("crtWeight", crtWeight)
+                    intent.putExtra("crtReps", crtReps)
                     weightActivityResultLauncher.launch(intent)
                 }
                 0 -> {
                     val intent = Intent(this@SeriesActivity, Clock::class.java)
+                    intent.putExtra("crtTime", crtTime)
                     timeActivityResultLauncher.launch(intent)
                 }
             }

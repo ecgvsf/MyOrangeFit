@@ -42,19 +42,20 @@ class Clock : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // Forza l'orientamento in portrait
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val crtTime = intent.getIntExtra("crtTime", 15)
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ClockApp(this)
+                ClockApp(this, crtTime)
             }
         }
     }
 }
 
 @Composable
-fun ClockApp(clock: Clock) {
+fun ClockApp(clock: Clock, crtTime: Int) {
 
     var secondHandAngle by remember { mutableFloatStateOf(90f) }
     var minuteHandAngle by remember { mutableFloatStateOf(0f) }
@@ -394,5 +395,5 @@ fun ClockApp(clock: Clock) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    ClockApp(Clock())
+    ClockApp(Clock(), 15)
 }
