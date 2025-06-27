@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
 import android.util.Log
+import androidx.room.util.query
 import com.example.myorangefit.model.BodyPart
 import com.example.myorangefit.model.Serie
 import com.example.myorangefit.model.Workout
@@ -240,22 +241,111 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return workoutIds
     }
 
-    fun getWorkoutsCalendarWeightById(id: Int): MutableList<Pair<String,Int>> {
-        val workoutIds = mutableListOf<Pair<String,Int>>()
+    fun getLastWeightById(id: Int): Float {
         val db = readableDatabase
-        val cursor = db.rawQuery(
-            "SELECT date, AVG(peso) AS peso_medio FROM Series WHERE workout_id = ? GROUP BY date",
-            arrayOf(id.toString())
-        )
+        var weight = -1f
+
+        val query = """
+            SELECT peso as weight
+            FROM Series 
+            WHERE workout_id = ?
+            ORDER BY date DESC
+            Limit 1
+        """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(id.toString()))
+
+        if (cursor.moveToFirst()) {
+            weight = cursor.getFloat(cursor.getColumnIndexOrThrow("weight"))
+        }
+        cursor.close()
+
+        return weight
+    }
+
+    fun getLastRepsById(id: Int): Int {
+        val db = readableDatabase
+        var reps = -1
+
+        val query = """
+            SELECT rep
+            FROM Series 
+            WHERE workout_id = ?
+            ORDER BY date DESC
+            Limit 1
+        """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(id.toString()))
+
+        if (cursor.moveToFirst()) {
+            reps = cursor.getInt(cursor.getColumnIndexOrThrow("rep"))
+        }
+        cursor.close()
+
+        return reps
+    }
+
+    fun getLastTimeById(id: Int): Int {
+        val db = readableDatabase
+        var time = -1
+
+        val query = """
+            SELECT tempo as time
+            FROM Series 
+            WHERE workout_id = ?
+            ORDER BY date DESC
+            Limit 1
+        """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(id.toString()))
+
+        if (cursor.moveToFirst()) {
+            time = cursor.getInt(cursor.getColumnIndexOrThrow("time"))
+        }
+        cursor.close()
+
+        return time
+    }
+
+    fun getWorkoutsCalendarWeightById(id: Int, filter: Int, today: LocalDate): MutableList<Pair<String, Int>> {
+        val workoutIds = mutableListOf<Pair<String, Int>>()
+        val db = readableDatabase
+
+        val startDate = when (filter) {
+            0 -> today.minusDays(6)   // ultimi 7 giorni
+            1 -> today.minusDays(29)  // ultimi 30 giorni
+            2 -> today.minusDays(364) // ultimi 365 giorni
+            else -> today.minusDays(29)
+        }
+        val endDate = today
+
+        // Scegli la chiave di raggruppamento
+        val (groupField, orderField) = when (filter) {
+            1 -> "strftime('%Y-%W', date)" to "strftime('%Y-%W', date)"  // Settimane
+            2 -> "strftime('%Y-%m', date)" to "strftime('%Y-%m', date)"  // Mesi
+            else -> "date" to "date"  // Giorni
+        }
+
+        val query = """
+            SELECT $groupField AS group_key, AVG(peso) AS peso_medio 
+            FROM Series 
+            WHERE workout_id = ? 
+              AND date BETWEEN ? AND ?
+            GROUP BY group_key
+            ORDER BY $orderField ASC
+        """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(id.toString(), startDate.toString(), endDate.toString()))
         while (cursor.moveToNext()) {
-            val date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            val groupKey = cursor.getString(cursor.getColumnIndexOrThrow("group_key"))
             val avgP = cursor.getInt(cursor.getColumnIndexOrThrow("peso_medio"))
-            workoutIds.add(Pair(date,avgP))
+            workoutIds.add(Pair(groupKey, avgP))
         }
         cursor.close()
 
         return workoutIds
     }
+
 
     fun getWorkoutsCalendarByMonths(currentYear: String, currentMonth: String): List<WorkoutCalendar> {
         val db = readableDatabase
@@ -423,6 +513,43 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return Triple(count, avgRep, avgPeso)
     }
+
+    fun getBodyPartsPerDayOfWeekDetailed(date: LocalDate): MutableMap<String, MutableList<String>> {
+        val db = readableDatabase
+        val tempMap = mutableMapOf<String, MutableList<String>>()
+
+        // Converte la data in stringa per usarla nella query
+        val startOfWeek = date.minusDays(date.dayOfWeek.value.toLong() - 1).toString() // Inizio della settimana (lunedì)
+        val endOfWeek = date.plusDays(7 - date.dayOfWeek.value.toLong()).toString() // Fine della settimana (domenica)
+
+        val query = """
+            SELECT
+                wc.date,
+                strftime('%w', wc.date) AS day_of_week,
+                bp.name AS bodypart
+            FROM WorkoutCalendar wc
+            INNER JOIN Workout w ON wc.id_workout = w.id
+            INNER JOIN BodyPart bp ON w.body_part_id = bp.id
+            WHERE date >= ? -- Inizio della settimana
+                  AND date <= ? -- Fine della settimana
+            ORDER BY wc.date, bp.name
+        """
+        val cursor = db.rawQuery(query, arrayOf(startOfWeek, endOfWeek))
+
+        while (cursor.moveToNext()) {
+            val date = cursor.getString(cursor.getColumnIndexOrThrow("date"))
+            val dayOfWeek = cursor.getString(cursor.getColumnIndexOrThrow("day_of_week"))
+            val bodyPart = cursor.getString(cursor.getColumnIndexOrThrow("bodypart"))
+
+            val list = tempMap.getOrPut(dayOfWeek) { mutableListOf() }
+            if (!list.contains(bodyPart)) { // Evita duplicati!
+                list.add(bodyPart)
+            }
+        }
+        cursor.close()
+        return tempMap
+    }
+
 
     fun getWeekWorkout(date: LocalDate): MutableList<String> {
         val db = readableDatabase

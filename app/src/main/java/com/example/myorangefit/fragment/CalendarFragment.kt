@@ -1,20 +1,20 @@
 package com.example.myorangefit.fragment
 
 import android.animation.AnimatorSet
-import android.os.Bundle
-
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.ActionBar.LayoutParams
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.EdgeEffect
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -22,27 +22,18 @@ import androidx.cardview.widget.CardView
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.children
-import androidx.core.view.isEmpty
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.myorangefit.R
-import com.example.myorangefit.activity.MainActivity
 import com.example.myorangefit.activity.ManageWorkoutActivity
-import com.example.myorangefit.adapter.ExerciseCalendarAdapter
-import com.example.myorangefit.adapter.ExerciseFragment
 import com.example.myorangefit.adapter.ExercisePagerAdapter
-import com.example.myorangefit.adapter.FadeItemAnimator
 import com.example.myorangefit.async.WorkoutViewModel
-import com.example.myorangefit.async.WorkoutViewModelFactory
 import com.example.myorangefit.database.DatabaseHelper
 import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.databinding.CalendarDayBinding
@@ -61,14 +52,9 @@ import java.util.Locale
 class CalendarFragment : Fragment() {
 
     private lateinit var today: LocalDate
-
     private lateinit var databaseHelper: DatabaseHelper
     private lateinit var viewModel: WorkoutViewModel
-
     private lateinit var dateBodyPartMap: MutableMap<LocalDate, MutableSet<String>>
-
-    //private lateinit var recyclerView: RecyclerView
-    //private lateinit var exerciseAdapter: ExerciseCalendarAdapter
 
     private lateinit var viewPager: ViewPager2
     private var nItems = 4
@@ -96,8 +82,6 @@ class CalendarFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         today = (arguments?.getSerializable("today") as? LocalDate)!!
-
-
         contx = requireContext()
         databaseHelper = DatabaseHelperSingleton.getInstance(contx)
         viewModel = ViewModelProvider(requireActivity())[WorkoutViewModel::class.java]
@@ -107,64 +91,54 @@ class CalendarFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
-
         monthCalendarView = binding.exOneCalendar
         weekCalendarView = binding.exOneWeekCalendar
-
-
         return binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewPager = binding.pager
 
-        calculateItemsPerPage { itemsPerPage ->
-            viewModel.setNItems(itemsPerPage)
-        }
-
+        // Osserva eventuali cambiamenti sul numero di item (senza forzare il valore)
         viewModel.nItems.observe(viewLifecycleOwner) { num ->
             nItems = num
             Log.e("sss", "$nItems, $num")
-            nItems = 4
+            refreshPagerAdapter()
         }
 
         viewModel.allWorkouts.observe(viewLifecycleOwner) { workoutMap ->
             dateBodyPartMap = workoutMap
         }
-
         viewModel.selectedData.observe(viewLifecycleOwner) { selected ->
             selectedDate = selected
             viewModel.loadWorkoutsForDate(selected)
         }
-
-        // Osserva gli allenamenti caricati e chiamare displayWorkouts per visualizzarli
+        // All’interno del observer per viewModel.workoutsForDate:
         viewModel.workoutsForDate.observe(viewLifecycleOwner) { workoutsForDate ->
             val selectedDate = viewModel.selectedData.value
             val workouts = workoutsForDate[selectedDate] ?: emptyList()
 
             displayWorkouts(workouts.toMutableList())
             updateTitle()
-            if (selectedDate != null) {
-                updateDayInfo(selectedDate)
-            }
+            selectedDate?.let { updateDayInfo(it) }
 
-            // Crea l'adapter per il ViewPager2
-            val exerciseData =
-                workouts.chunked(nItems).map { it.toMutableList() }.toMutableList()
+            // Calcola il chunk size in modo sicuro
+            val chunkSize = if (nItems > 0) nItems else 1
+            val exerciseData = workouts.chunked(chunkSize).map { it.toMutableList() }.toMutableList()
             val d = selectedDate ?: today
 
-            val exercisePagerAdapter =
-                ExercisePagerAdapter(requireActivity(), exerciseData, d, isWeekMode)
+            // Crea l’adapter per il ViewPager2
+            val exercisePagerAdapter = ExercisePagerAdapter(requireActivity(), exerciseData, d, isWeekMode)
             viewPager.adapter = exercisePagerAdapter
-            // Imposta il limite delle pagine fuori schermo
+
+            // Imposta il limite delle pagine fuori schermo se ci sono allenamenti
             if (workouts.isNotEmpty())
                 viewPager.setOffscreenPageLimit(exerciseData.size)
         }
+
 
         val daysOfWeek = daysOfWeek()
 
@@ -172,31 +146,29 @@ class CalendarFragment : Fragment() {
         weekDayTextView = binding.weekDay
 
         cardView = binding.bottomSheet
+        // Imposta l’altezza della cardView pari all’altezza dello schermo
         val screenHeight = resources.displayMetrics.heightPixels
         cardView.updateLayoutParams {
-            height = screenHeight
+            //height = screenHeight
         }
         cardView.updateLayoutParams<RelativeLayout.LayoutParams> {
-            bottomMargin = -90
+            //bottomMargin = -90
         }
 
         binding.lineContainer.setOnTouchListener(cardViewTouchListener)
-        //monthCalendarView.setOnTouchListener(cardViewTouchListener)
-        //weekCalendarView.setOnTouchListener(cardViewTouchListener)
 
-        binding.legendLayout.root.children
-            .map { it as TextView }
-            .forEachIndexed { index, textView ->
-                textView.text = daysOfWeek[index].displayText()
-                textView.setTextColor(Color.WHITE)
+        binding.legendLayout.root.children.forEachIndexed { index, view ->
+            (view as TextView).apply {
+                text = daysOfWeek[index].displayText()
+                setTextColor(Color.WHITE)
             }
+        }
 
         val currentMonth = YearMonth.now()
         val startMonth = currentMonth.minusMonths(60)
         val endMonth = currentMonth.plusMonths(3)
         setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
         setupWeekCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
-
 
         monthCalendarView.isInvisible = isWeekMode
         weekCalendarView.isInvisible = !isWeekMode
@@ -206,9 +178,10 @@ class CalendarFragment : Fragment() {
         }
 
         cardView.post {
-            expandedPosition = weekCalendarView.bottom.toFloat()
-            collapsedPosition = monthCalendarView.bottom.toFloat() + 32f
-            cardView.y = collapsedPosition
+            //updateCardView()
+            val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.topMargin = 16.dpToPx(requireContext())
+            cardView.layoutParams = layoutParams
             adjustPagerHeight()
         }
 
@@ -216,21 +189,16 @@ class CalendarFragment : Fragment() {
 
         monthCalendarView.viewTreeObserver.addOnGlobalLayoutListener {
             collapsedPosition = monthCalendarView.bottom.toFloat()
-            if (isWeekMode) {
-                cardView.y = collapsedPosition
-            }
+            //if (isWeekMode)
+                //cardView.y = collapsedPosition
         }
 
-        Log.d("dataaaaa", "$screenHeight, ${cardView.layoutParams.height}")
-
         binding.manageWorkoutsButton.setOnClickListener {
-            val intent = Intent(contx, ManageWorkoutActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(contx, ManageWorkoutActivity::class.java))
         }
 
         binding.selectButton.setOnClickListener {
-            val map = viewModel.workoutsForDate.value
-            map?.let {
+            viewModel.workoutsForDate.value?.let { map ->
                 val workouts = map[selectedDate] ?: emptyList()
                 if (workouts.isNotEmpty())
                     selectionMode()
@@ -241,10 +209,8 @@ class CalendarFragment : Fragment() {
         binding.left.setOnClickListener { scroll(-1) }
         binding.right.setOnClickListener { scroll(1) }
 
-
         binding.trashButton.setOnClickListener {
-            val adapter = viewPager.adapter as? ExercisePagerAdapter
-            adapter?.let {
+            (viewPager.adapter as? ExercisePagerAdapter)?.let { adapter ->
                 val empty = adapter.removeAndShiftItem()
                 if (empty) {
                     displayWorkouts(mutableListOf())
@@ -259,105 +225,109 @@ class CalendarFragment : Fragment() {
                 }
             }
             selectionMode()
+        }
 
+        val recyclerView = viewPager.getChildAt(0) as RecyclerView
+        // 1) disabiliti l’overscroll “stretch/glow” via overScrollMode
+        recyclerView.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+
+        // 2) oppure (oppure in aggiunta) imposti un EdgeEffectFactory “muto”
+        recyclerView.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return object : EdgeEffect(view.context) {
+                    override fun onPull(deltaDistance: Float) {}
+                    override fun onPull(deltaDistance: Float, displacement: Float) {}
+                    override fun onRelease() {}
+                    override fun onAbsorb(velocity: Int) {}
+                }
+            }
+        }
+
+        // 2) Osserva nItems e fai refresh ogni volta
+        viewModel.nItems.observe(viewLifecycleOwner) { newCount ->
+            nItems = newCount
+
+        }
+
+        // Permetti ai figli di uscire dai bordi
+        viewPager.clipToPadding = false
+        viewPager.clipChildren = false
+        // Anche la RecyclerView interna
+        val rv = viewPager.getChildAt(0) as RecyclerView
+        rv.clipToPadding = false
+        rv.clipChildren = false
+
+        // Disabilita clipping anche sul CardView e sul suo contenitore
+        cardView.clipToPadding = false
+        cardView.clipChildren = false
+        (binding.bottomSheet.getChildAt(0) as ViewGroup).clipChildren = false
+    }
+
+    private fun refreshPagerAdapter() {
+        val date = selectedDate ?: today
+        val workouts = viewModel.workoutsForDate.value?.get(date) ?: emptyList()
+        val chunkSize = nItems.coerceAtLeast(1)
+        val pages = workouts.chunked(chunkSize).map { it.toMutableList() }
+        val adapter = ExercisePagerAdapter(requireActivity(), pages.toMutableList(), date, isWeekMode)
+        viewPager.adapter = adapter
+        if (pages.isNotEmpty()) {
+            viewPager.offscreenPageLimit = pages.size
         }
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------------------------
-    /* ------------------------------------------------------- Per Scorrere il calendario ------------------------------------------------------ */
-
+    /* ---- Funzioni per lo scroll del calendario ---- */
     private fun scrollToday() {
         monthCalendarView.scrollToMonth(today.yearMonth)
         weekCalendarView.scrollToWeek(today)
-
         dateClicked(today)
     }
 
     private fun scroll(date: LocalDate) {
         monthCalendarView.scrollToMonth(date.yearMonth)
         weekCalendarView.scrollToWeek(date)
-
         dateClicked(date)
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* ----------------------------------------------- Per Scorrere il calendario con le Frecce ---------------------------------------------- */
-
     private fun scroll(direction: Long) {
-        if (!isWeekMode) { //calendario mensile
-            val dateToShow = monthCalendarView.findFirstVisibleMonth()?.yearMonth?.plusMonths(direction)
-            if (dateToShow != null) {
-                monthCalendarView.scrollToMonth(dateToShow)
+        if (!isWeekMode) {
+            monthCalendarView.findFirstVisibleMonth()?.yearMonth?.plusMonths(direction)?.let {
+                monthCalendarView.scrollToMonth(it)
             }
-        } else { //calendario settimanale
-            val dateToShow = weekCalendarView.findFirstVisibleWeek()?.days?.first()?.date?.plusWeeks(direction)
-            if (dateToShow != null) {
-                weekCalendarView.scrollToWeek(dateToShow)
+        } else {
+            weekCalendarView.findFirstVisibleWeek()?.days?.first()?.date?.plusWeeks(direction)?.let {
+                weekCalendarView.scrollToWeek(it)
             }
         }
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* -------------------------------------------- Per Aggiornare le Info del Giorno Selezionato -------------------------------------------- */
-
+    /* ---- Aggiornamento info del giorno ---- */
     @SuppressLint("SetTextI18n")
     private fun updateDayInfo(date: LocalDate) {
         numDayTextView.text = date.dayOfMonth.toString()
-        weekDayTextView.text = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).substring(0, 3).lowercase()
+        weekDayTextView.text = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+            .substring(0, 3).lowercase()
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* ------------------------------------------- Per Animare il Calendario e la Card con le Info ------------------------------------------- */
-
+    /* ---- Animazione del calendario e della CardView ---- */
     private val cardViewTouchListener = object : View.OnTouchListener {
         private var initialTouchY: Float = 0f
-
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-
-
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialTouchY = event.rawY
                     return true
                 }
-
-                MotionEvent.ACTION_MOVE -> {
-                    // Non fare nulla durante il movimento
-                    return true
-                }
-
+                MotionEvent.ACTION_MOVE -> return true
                 MotionEvent.ACTION_UP -> {
                     val deltaY = event.rawY - initialTouchY
-                    // Determina se l'utente vuole passare alla modalità mensile o settimanale
-                    val newMode = if (deltaY < 0) {
-                        true
-                    }
-                    else if (deltaY > 0) {
-                        val adapter = viewPager.adapter as? ExercisePagerAdapter
+                    val newMode = if (deltaY < 0) true else if (deltaY > 0) false else return false
 
-                        // Verifica se l'adapter non è null
-                        adapter?.let {
-                            if (isSelectionMode)
-                                selectionMode()
-                        }
-                        false
-                    }
-                    else
-                        return false
-
-                    // Verifica se la nuova modalità è diversa dall'attuale
                     if (newMode != isWeekMode) {
                         isWeekMode = newMode
-                        val visibility: Int = if (isWeekMode){
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
-                        binding.selectButton.visibility = visibility
+                        binding.selectButton.visibility = if (isWeekMode) View.VISIBLE else View.GONE
                         animateCalendar()
                         updateTitle()
-
                     }
                     return true
                 }
@@ -367,66 +337,67 @@ class CalendarFragment : Fragment() {
     }
 
     private fun animateCalendar() {
+        val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.topMargin = 0.dpToPx(requireContext())
+
         val dateToShow = selectedDate ?: today
-        if (!isWeekMode) {
+        if (!isWeekMode)
             monthCalendarView.scrollToMonth(dateToShow.yearMonth)
-        } else {
+        else
             weekCalendarView.scrollToWeek(dateToShow.startOfWeek())
-        }
 
-        var weekHeight = weekCalendarView.height
-        val visibleMonthHeight = weekHeight * monthCalendarView.findFirstVisibleMonth()?.weekDays.orEmpty().count()
-        weekHeight += 32
+        val weekHeight = weekCalendarView.height
+        val monthDaysCount = monthCalendarView.findFirstVisibleMonth()?.weekDays.orEmpty().count()
+        val visibleMonthHeight = weekHeight * monthDaysCount + 32
+        val adjustedWeekHeight = weekHeight + 32
 
-        val oldHeight = if (isWeekMode) visibleMonthHeight else weekHeight
-        val newHeight = if (isWeekMode) weekHeight else visibleMonthHeight
+        val oldHeight = if (isWeekMode) visibleMonthHeight else adjustedWeekHeight
+        val newHeight = if (isWeekMode) adjustedWeekHeight else visibleMonthHeight
 
         val oldPosition = cardView.y
-        val newPosition = if (isWeekMode) oldHeight + 32 else newHeight + 32
+        val newPosition = if (isWeekMode) oldHeight else newHeight + 32
 
-        // Larghezza della linea
         val line = binding.line
         val oldLineWidth = line.layoutParams.width
         val newLineWidth = if (isWeekMode) oldLineWidth + 64 else oldLineWidth - 64
 
-        // Animatore per altezza del calendario e posizione della CardView
         val heightAnimator = ValueAnimator.ofInt(oldHeight, newHeight).apply {
             addUpdateListener { anim ->
                 val animatedHeight = anim.animatedValue as Int
                 monthCalendarView.updateLayoutParams {
                     height = animatedHeight
                 }
-                monthCalendarView.children.forEach { child ->
-                    child.requestLayout()
-                }
-                // Aggiorna la posizione della CardView in base all'altezza del calendario
-                cardView.y = (oldPosition + (newPosition - oldPosition) * (animatedHeight.toFloat() / newHeight))
+                monthCalendarView.children.forEach { it.requestLayout() }
+                //cardView.y = (oldPosition + (newPosition - oldPosition) * (animatedHeight.toFloat() / newHeight))
             }
             doOnStart {
+                //adjustPagerHeight(getHeight((weekCalendarView.y + newHeight).toFloat()))
                 if (!isWeekMode) {
                     weekCalendarView.isInvisible = true
                     monthCalendarView.isVisible = true
                 }
-                val adapter = viewPager.adapter as ExercisePagerAdapter
-                for (i in 0..adapter.itemCount) {
-                    adapter.toggleExpansion(i,isWeekMode)
+                (viewPager.adapter as? ExercisePagerAdapter)?.let { adapter ->
+                    for (i in 0 until adapter.itemCount) {
+                        adapter.toggleExpansion(i, isWeekMode)
+                    }
                 }
-                adjustPagerHeight()
-                //adjustRecyclerViewItem()
+                //viewPager.updateLayoutParams { height = MATCH_PARENT }
             }
             doOnEnd {
                 if (isWeekMode) {
                     weekCalendarView.isVisible = true
                     monthCalendarView.isInvisible = true
                 } else {
-                    monthCalendarView.updateLayoutParams { height = WRAP_CONTENT }
+                    //monthCalendarView.updateLayoutParams { height = WRAP_CONTENT }
                 }
+
+                //updateCardView()
+                adjustPagerHeight()
                 updateTitle()
             }
             duration = 300
         }
 
-        // Animatore per la larghezza della linea
         val lineWidthAnimator = ValueAnimator.ofInt(oldLineWidth, newLineWidth).apply {
             addUpdateListener { anim ->
                 val animatedWidth = anim.animatedValue as Int
@@ -436,54 +407,33 @@ class CalendarFragment : Fragment() {
             duration = 300
         }
 
-        // AnimatorSet per combinare le due animazioni
-        val animatorSet = AnimatorSet().apply {
+        AnimatorSet().apply {
             playTogether(heightAnimator, lineWidthAnimator)
+            start()
         }
-
-        animatorSet.start()
         Log.d("dataaaaa", "${cardView.height}")
     }
 
-    /*
-    private fun adjustRecyclerViewItem() {
-        // Ottieni l'adapter dal RecyclerView
-        val adapter = recyclerView.adapter as? ExerciseCalendarAdapter
-
-        // Verifica se l'adapter non è null
-        adapter?.let {
-            // Itera sugli item visibili del RecyclerView
-            for (i in 0 until recyclerView.childCount) {
-                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as? ExerciseCalendarAdapter.ExerciseCalendarViewHolder
-                viewHolder?.let { holder ->
-                    // Chiama toggleExpansion per ciascun item visibile
-                    adapter.toggleExpansion(holder, isWeekMode)
-                } ?: run {
-                    adapter.notifyItemChanged(i)
-                }
-            }
-        }
+    private fun updateCardView() {
+        val offset = 32f
+        collapsedPosition = monthCalendarView.bottom.toFloat() + offset
+        expandedPosition  = weekCalendarView.bottom.toFloat() + offset
+        // 3) Riposiziona la CardView
+        cardView.y = if (isWeekMode) expandedPosition else collapsedPosition
     }
-    */
 
+    /* ---- Modalità di selezione ---- */
     private fun selectionMode() {
-        // Ottieni l'adapter dal RecyclerView
-        val adapter = viewPager.adapter as? ExercisePagerAdapter
-
-        // Verifica se l'adapter non è null
-        adapter?.let {
+        (viewPager.adapter as? ExercisePagerAdapter)?.let { adapter ->
             if (isSelectionMode) {
                 adapter.setSwipe(true)
                 binding.trashButton.visibility = View.GONE
-                //binding.editButton.visibility = View.GONE
             } else {
                 adapter.setSwipe(false)
                 binding.trashButton.visibility = View.VISIBLE
-                //binding.editButton.visibility = View.VISIBLE
             }
-            for (i in 0..adapter.itemCount)
+            for (i in 0 until adapter.itemCount)
                 adapter.toggleSelection(i, isSelectionMode)
-
             isSelectionMode = !isSelectionMode
         }
     }
@@ -492,25 +442,22 @@ class CalendarFragment : Fragment() {
         return this.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* ---------------------------------------------------- Per Inizializzare i Calendari ---------------------------------------------------- */
-
+    /* ---- Inizializzazione dei calendari ---- */
     private fun setupMonthCalendar(
         startMonth: YearMonth,
         endMonth: YearMonth,
         currentMonth: YearMonth,
-        daysOfWeek: List<DayOfWeek>,
+        daysOfWeek: List<DayOfWeek>
     ) {
         class DayViewContainer(view: View) : ViewContainer(view) {
             lateinit var day: CalendarDay
             val textView = CalendarDayBinding.bind(view).exOneDayText
             val dotContainer = CalendarDayBinding.bind(view).dotContainer
             val dayContainer = CalendarDayBinding.bind(view).dayContainer
-
             init {
                 view.setOnClickListener {
                     if (day.position == DayPosition.MonthDate) {
-                        dateClicked(date = day.date)
+                        dateClicked(day.date)
                     }
                 }
             }
@@ -523,11 +470,7 @@ class CalendarFragment : Fragment() {
                 bindDate(data.date, container.dayContainer, container.dotContainer, container.textView, data.position == DayPosition.MonthDate)
             }
         }
-
-        monthCalendarView.monthScrollListener = {
-            updateTitle()
-        }
-
+        monthCalendarView.monthScrollListener = { updateTitle() }
         monthCalendarView.setup(startMonth, endMonth, daysOfWeek.first())
         monthCalendarView.scrollToMonth(currentMonth)
     }
@@ -536,23 +479,21 @@ class CalendarFragment : Fragment() {
         startMonth: YearMonth,
         endMonth: YearMonth,
         currentMonth: YearMonth,
-        daysOfWeek: List<DayOfWeek>,
+        daysOfWeek: List<DayOfWeek>
     ) {
         class WeekDayViewContainer(view: View) : ViewContainer(view) {
             lateinit var day: WeekDay
             val textView = CalendarDayBinding.bind(view).exOneDayText
             val dotContainer = CalendarDayBinding.bind(view).dotContainer
             val dayContainer = CalendarDayBinding.bind(view).dayContainer
-
             init {
                 view.setOnClickListener {
                     if (day.position == WeekDayPosition.RangeDate) {
-                        dateClicked(date = day.date)
+                        dateClicked(day.date)
                     }
                 }
             }
         }
-
         weekCalendarView.dayBinder = object : WeekDayBinder<WeekDayViewContainer> {
             override fun create(view: View): WeekDayViewContainer = WeekDayViewContainer(view)
             override fun bind(container: WeekDayViewContainer, data: WeekDay) {
@@ -560,59 +501,47 @@ class CalendarFragment : Fragment() {
                 bindDate(data.date, container.dayContainer, container.dotContainer, container.textView, data.position == WeekDayPosition.RangeDate)
             }
         }
-
-        weekCalendarView.weekScrollListener = {
-            updateTitle()
-        }
-
+        weekCalendarView.weekScrollListener = { updateTitle() }
         weekCalendarView.setup(
             startMonth.atStartOfMonth(),
             endMonth.atEndOfMonth(),
-            daysOfWeek.first(),
+            daysOfWeek.first()
         )
         weekCalendarView.scrollToWeek(currentMonth.atStartOfMonth())
     }
 
     private fun bindDate(date: LocalDate, dayContainer: LinearLayout, dotContainer: LinearLayout, textView: TextView, isSelectable: Boolean) {
-        // Pulisci i vecchi pallini
         dotContainer.removeAllViews()
-
         textView.text = date.dayOfMonth.toString()
         if (isSelectable) {
             when {
                 selectedDate == date -> {
                     dayContainer.setBackgroundResource(R.drawable.selected_bg)
-                    textView.setTextColor(Color.WHITE) // Colore del testo selezionato
+                    textView.setTextColor(Color.WHITE)
                 }
                 today == date -> {
                     dayContainer.setBackgroundResource(R.drawable.today_bg)
-                    textView.setTextColor(Color.WHITE) // Colore del testo per il giorno corrente
+                    textView.setTextColor(Color.WHITE)
                 }
                 else -> {
-                    textView.setTextColor(Color.WHITE) // Colore del testo per i giorni normali
+                    textView.setTextColor(Color.WHITE)
                     dayContainer.setBackgroundResource(R.drawable.day_bg)
                 }
             }
-
             val colorMap = mapOf(
-                "1" to getColor(contx, R.color.chestColor),
-                "2" to getColor(contx, R.color.backColor),
-                "3" to getColor(contx, R.color.legsColor),
-                "4" to getColor(contx, R.color.armsColor),
-                "5" to getColor(contx, R.color.shouldersColor),
-                "6" to getColor(contx, R.color.absColor)
+                "1" to ContextCompat.getColor(contx, R.color.chestColor),
+                "2" to ContextCompat.getColor(contx, R.color.backColor),
+                "3" to ContextCompat.getColor(contx, R.color.legsColor),
+                "4" to ContextCompat.getColor(contx, R.color.armsColor),
+                "5" to ContextCompat.getColor(contx, R.color.shouldersColor),
+                "6" to ContextCompat.getColor(contx, R.color.absColor)
             )
-
-            // Aggiungi i pallini per le parti del corpo allenate in questo giorno
             val bodyParts = dateBodyPartMap[date] ?: emptySet()
             bodyParts.forEach { bodyPart ->
-                val color = colorMap[bodyPart]
-                if (color != null) {
+                colorMap[bodyPart]?.let { color ->
                     val dotView = View(dotContainer.context).apply {
-                        layoutParams = LinearLayout.LayoutParams(16, 16).apply {
-                            marginEnd = 4 // Aggiungi uno spazio tra i pallini
-                        }
-                        background = ContextCompat.getDrawable(context, R.drawable.circle) // Un drawable per i pallini rotondi
+                        layoutParams = LinearLayout.LayoutParams(16, 16).apply { marginEnd = 4 }
+                        background = ContextCompat.getDrawable(context, R.drawable.circle)
                         background.setTint(color)
                     }
                     dotContainer.addView(dotView)
@@ -626,114 +555,119 @@ class CalendarFragment : Fragment() {
 
     private fun dateClicked(date: LocalDate) {
         if (date == selectedDate) return
-
-        {
-            TODO(
-                "da correggere l'aggiornamento della grafica del giorno " +
-                        "selezionato che a volte si bugga quando cambi giorno rapidamente"
-            )
-        }
-
         isSelectionMode = false
-
         binding.trashButton.visibility = View.GONE
-        //binding.editButton.visibility = View.GONE
-
         val previousDate = selectedDate
-
         viewModel.updateData(date)
-
-        // Refresh both calendar views..
         previousDate?.let {
             monthCalendarView.notifyDateChanged(it)
             weekCalendarView.notifyDateChanged(it)
-            Log.e("sss", "changing $previousDate, $date")
+            Log.e("sss", "changing $it to $date")
         }
         monthCalendarView.notifyDateChanged(date)
         weekCalendarView.notifyDateChanged(date)
     }
 
-    //--------------------------------------------------------------------------------------------------------------------------------------------
-    /* -------------------------------------------- Per Caricare gli Allenamenti nel Recycler View -------------------------------------------- */
-
+    /* ---- Caricamento degli allenamenti ---- */
     private fun displayWorkouts(workout: MutableList<Workout>) {
-        if (workout.isNotEmpty()) {
-            binding.title.visibility = View.GONE
-        } else {
-            binding.title.visibility = View.VISIBLE
-        }
-
-        // Imposta lo stato espanso o contratto nell'adapter in base alla modalità corrente
-        //exerciseAdapter.setExpandedMode(isWeekMode)
+        binding.title.visibility = if (workout.isNotEmpty()) View.GONE else View.VISIBLE
+        // Se necessario, qui potresti aggiornare lo stato dell'adapter
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* ---------------------------------------------- Per adattare l'altezza del RecyclerView ----------------------------------------------- */
+    /* ---- Funzioni per il calcolo dinamico dell'altezza del pager ---- */
+    private fun getItemTotalHeight(isExpanded: Boolean): Int {
+        val baseCardHeight = if (isExpanded) 80.dpToPx(requireContext()) else 40.dpToPx(requireContext())
+        val extraHeight = 16.dpToPx(requireContext())
+        return baseCardHeight + extraHeight
+    }
 
+    private fun calculateVisibleItemCount(isExpanded: Boolean, onCalculated: (Int) -> Unit) {
+        binding.root.post {
+            val cardHeight = cardView.height
+            val contaierHeight = binding.pagerContainer.height
+            val bottomMargin = 30.dpToPx(requireContext())
+            val availableHeight = cardHeight - bottomMargin
+            val singleItemHeight = getItemTotalHeight(isExpanded)
+            val visibleCount = (availableHeight / singleItemHeight) - 1
+            onCalculated(if (visibleCount > 0) visibleCount else 1)
+            Log.e("ssssss", cardHeight.toString())
+            Log.e("ssssss", contaierHeight.toString())
+            Log.e("ssssss", availableHeight.toString())
+            Log.e("ssssss", singleItemHeight.toString())
+            Log.e("ssssss", visibleCount.toString())
+        }
+    }
+
+    private fun getHeight(finalHeight: Float) : Float {
+        val metrics = requireContext().resources.displayMetrics
+        val screenWidth  = metrics.widthPixels   // larghezza in px
+        val screenHeight = metrics.heightPixels  // altezza in px
+
+        val containerBottom = binding.pagerContainer.bottom
+        val h = finalHeight - containerBottom
+        return h
+    }
+
+    /**
+     * Aggiorna l'altezza del pager in base allo spazio disponibile,
+     * calcolando quanti item ci stanno.
+     */
+    private fun adjustPagerHeight(availableHeight: Float) {
+        val isExpanded = isWeekMode
+        val offset = 30.dpToPx(requireContext())
+        val containerHeight = binding.relativeContainer.height
+        val weekHeight = binding.exOneWeekCalendar.height
+        val monthHeight = weekHeight * 6
+        val calendarHeight = if (isExpanded) weekHeight else monthHeight
+        val newHeight = containerHeight - calendarHeight - offset
+        Log.e("sasso", newHeight.toString())
+
+        val singleItemHeight = getItemTotalHeight(isExpanded)
+        val visibleCount = (newHeight / singleItemHeight) - 1
+
+        Log.e("sasso", singleItemHeight.toString())
+        Log.e("sasso", visibleCount.toString())
+
+        viewModel.setNItems(visibleCount)
+    }
 
     private fun adjustPagerHeight() {
-        if (!isWeekMode)
+        val isExpanded = isWeekMode
+        calculateVisibleItemCount(isExpanded) { visibleItemCount ->
+            val newPagerHeight = visibleItemCount * getItemTotalHeight(isExpanded)
             viewPager.updateLayoutParams<LinearLayout.LayoutParams> {
-                height = (resources.getDimension(R.dimen.month_item_height).toInt() + 16.dpToPx(contx)) * nItems
+                //height = newPagerHeight
             }
-        else
-            viewPager.updateLayoutParams<LinearLayout.LayoutParams> {
-                height = LayoutParams.MATCH_PARENT
-            }
-    }
 
-    private fun calculateItemsPerPage(onCalculated: (Int) -> Unit) {
-        // Usa post per ottenere l'altezza della root view dopo che è stata disegnata
-        binding.root.post {
-            val frameHeight = binding.root.height
-            val weekCalendarHeight = weekCalendarView.height
+            Log.e("sssssssss", newPagerHeight.toString())
 
-            val wLocation = IntArray(2)
-            weekCalendarView.getLocationOnScreen(wLocation)
+            val remaining = binding.pagerContainer.height - newPagerHeight
+            Log.e("ssssssssssss", remaining.toString())
+            // 2. Applica come paddingBottom (minimo 0)
+            viewPager.setPadding(0, 0, 0, remaining)
 
-            val hWeek = wLocation[1] + weekCalendarHeight
-
-            // Calcola l'altezza disponibile per il RecyclerView
-            val cardHeightWeek = frameHeight - hWeek
-            val recyclerViewWeekHeight = cardHeightWeek - 40.dpToPx(contx) - 20.dpToPx(contx)
-
-            // Calcola il numero di item visibili nel RecyclerView
-            val itemWeek = recyclerViewWeekHeight / 85.dpToPx(contx)
-
-            Log.e("sss", "w: $itemWeek, $frameHeight")
-
-            // Usa il callback per restituire il valore
-            onCalculated(itemWeek)
+            viewModel.setNItems(visibleItemCount)
         }
     }
 
-
-    //-------------------------------------------------------------------------------------------------------------------------------------------
-    /* ------------------------------------------------- Per Aggiornare le Info nella AppBar ------------------------------------------------- */
-
+    /* ---- Aggiornamento info nell'AppBar ---- */
     @SuppressLint("SetTextI18n")
     private fun updateTitle() {
         if (!isWeekMode) {
-            val month = monthCalendarView.findFirstVisibleMonth()?.yearMonth ?: return
-            binding.exOneYearText.text = month.year.toString()
-            binding.exOneMonthText.text = month.month.displayText(short = false)
+            monthCalendarView.findFirstVisibleMonth()?.yearMonth?.let { month ->
+                binding.exOneYearText.text = month.year.toString()
+                binding.exOneMonthText.text = month.month.displayText(short = false)
+            }
         } else {
-            val week = weekCalendarView.findFirstVisibleWeek() ?: return
-            // In week mode, we show the header a bit differently because
-            // an index can contain dates from different months/years.
-            val firstDate = week.days.first().date
-            val lastDate = week.days.last().date
-            if (firstDate.yearMonth == lastDate.yearMonth) {
-                binding.exOneYearText.text = firstDate.year.toString()
-                binding.exOneMonthText.text = firstDate.month.displayText(short = false)
-            } else {
-                binding.exOneMonthText.text =
-                    firstDate.month.displayText(short = false) + " - " +
-                            lastDate.month.displayText(short = false)
-                if (firstDate.year == lastDate.year) {
+            weekCalendarView.findFirstVisibleWeek()?.let { week ->
+                val firstDate = week.days.first().date
+                val lastDate = week.days.last().date
+                if (firstDate.yearMonth == lastDate.yearMonth) {
                     binding.exOneYearText.text = firstDate.year.toString()
+                    binding.exOneMonthText.text = firstDate.month.displayText(short = false)
                 } else {
-                    binding.exOneYearText.text = "${firstDate.year} - ${lastDate.year}"
+                    binding.exOneMonthText.text = "${firstDate.month.displayText(short = false)} - ${lastDate.month.displayText(short = false)}"
+                    binding.exOneYearText.text = if (firstDate.year == lastDate.year) firstDate.year.toString() else "${firstDate.year} - ${lastDate.year}"
                 }
             }
         }
@@ -745,35 +679,27 @@ class CalendarFragment : Fragment() {
     }
 
     private fun DayOfWeek.displayText(uppercase: Boolean = false): String {
-        return getDisplayName(TextStyle.SHORT, Locale.ENGLISH).let { value ->
-            if (uppercase) value.uppercase(Locale.ENGLISH) else value
-        }
+        val text = getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+        return if (uppercase) text.uppercase(Locale.ENGLISH) else text
     }
 
     fun Int.dpToPx(context: Context): Int {
-        val density = context.resources.displayMetrics.density
-        return (this * density).toInt()
+        return (this * context.resources.displayMetrics.density).toInt()
     }
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onDestroyView() {
         super.onDestroyView()
         binding.lineContainer.setOnTouchListener(null)
-        //monthCalendarView.setOnTouchListener(null)
-        //weekCalendarView.setOnTouchListener(null)
-        binding.manageWorkoutsButton.setOnClickListener (null)
+        binding.manageWorkoutsButton.setOnClickListener(null)
         binding.selectButton.setOnClickListener(null)
-        binding.dayLayout.setOnClickListener (null)
-        binding.left.setOnClickListener (null)
-        binding.right.setOnClickListener (null)
+        binding.dayLayout.setOnClickListener(null)
+        binding.left.setOnClickListener(null)
+        binding.right.setOnClickListener(null)
         monthCalendarView.viewTreeObserver.removeOnGlobalLayoutListener {
             collapsedPosition = monthCalendarView.bottom.toFloat()
-            if (isWeekMode) {
-                cardView.y = collapsedPosition
-            }
+            if (isWeekMode) cardView.y = collapsedPosition
         }
         _binding = null
-
     }
 }

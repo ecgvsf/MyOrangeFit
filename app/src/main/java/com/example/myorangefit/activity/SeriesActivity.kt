@@ -1,7 +1,10 @@
 package com.example.myorangefit.activity
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -18,6 +21,8 @@ import com.example.myorangefit.adapter.SeriesAdapter
 import com.example.myorangefit.compose.Clock
 import com.example.myorangefit.compose.Scale
 import com.example.myorangefit.database.DatabaseHelper
+import com.example.myorangefit.widget.OrangeFitWidget
+import com.example.myorangefit.widget.updateAppWidget
 
 
 class SeriesActivity : AppCompatActivity() {
@@ -43,6 +48,16 @@ class SeriesActivity : AppCompatActivity() {
         val data = intent.getStringExtra("date").orEmpty()
         val id = intent.getIntExtra("id_workout", -1)
         val workout = databaseHelper.getWorkoutById(id)
+        val type = workout?.type
+
+        if (type == 1 ) {
+            crtWeight = databaseHelper.getLastWeightById(id)
+            crtReps = databaseHelper.getLastRepsById(id)
+            Log.e("sss",  crtWeight.toString() + " " + crtReps.toString())
+        } else if (type == 0) {
+            crtTime = databaseHelper.getLastTimeById(id)
+            Log.e("sss",  crtTime.toString())
+        }
 
         val title = findViewById<TextView>(R.id.exercise_title)
         title.text = workout?.name
@@ -141,6 +156,15 @@ class SeriesActivity : AppCompatActivity() {
                     val time = if (serie.first != -7f) (null) else (serie.second)
                     databaseHelper.insertSeries(id, data, position, reps, weight, time)
                 }
+
+                val appWidgetManager = AppWidgetManager.getInstance(this)
+                val thisWidget = ComponentName(this, OrangeFitWidget::class.java)
+                val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+                for (id in appWidgetIds) {
+                    updateAppWidget(this, appWidgetManager, id)
+                }
+
+
                 ActivityManager.finishAll()
                 startActivity(Intent(this, MainActivity::class.java))
             } else {

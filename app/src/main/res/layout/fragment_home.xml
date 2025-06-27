@@ -34,6 +34,7 @@
 
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/options"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:backgroundTint="@color/primary"
@@ -104,40 +105,52 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:orientation="vertical"
                         android:layout_margin="32dp">
 
-                        <ImageView
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="5"
-                            android:src="@drawable/ic_weight"
-                            app:tint="@color/primary"
-                            android:scaleType="fitStart"/>
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/imageWorkout"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                app:layout_constraintDimensionRatio="1:1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:src="@drawable/ic_weight"
+                                app:tint="@color/primary"
+                                android:scaleType="fitCenter"/>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
                             android:text="Workout"
                             android:textSize="24sp"
                             android:textStyle="bold"
-                            android:layout_marginTop="24dp"/>
+                            android:layout_marginTop="24dp"
+                            android:textAlignment="center"/>
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
                             android:text="manage all w."
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/gray"/>
+                            android:textColor="@color/gray"
+                            android:textAlignment="center"/>
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/routine_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"
@@ -166,7 +179,7 @@
                     -->
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:layout_margin="32dp">
@@ -177,7 +190,8 @@
                             android:layout_weight="0"
                             android:text="Routine "
                             android:textSize="24sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:textAlignment="center"/>
 
                         <TextView
                             android:layout_width="match_parent"
@@ -185,7 +199,8 @@
                             android:layout_weight="0"
                             android:text="choose a plan"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/gray"/>
+                            android:textColor="@color/gray"
+                            android:textAlignment="center"/>
 
                     </LinearLayout>
 
@@ -243,7 +258,7 @@
                         </RelativeLayout>
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_marginHorizontal="28dp"
                             android:layout_marginVertical="32dp"
@@ -257,7 +272,8 @@
                                 android:layout_weight="0"
                                 android:text="99x Days"
                                 android:textSize="24sp"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:textAlignment="center"/>
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -265,7 +281,8 @@
                                 android:layout_marginTop="8dp"
                                 android:layout_weight="0"
                                 android:text="current streak"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textAlignment="center" />
 
                         </LinearLayout>
 
@@ -286,7 +303,7 @@
 
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginHorizontal="28dp"
                                 android:layout_marginVertical="32dp"
@@ -300,7 +317,8 @@
                                     android:layout_weight="0"
                                     android:text="0 Times"
                                     android:textSize="24sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    android:textAlignment="center" />
 
                                 <TextView
                                     android:layout_width="match_parent"
@@ -308,7 +326,8 @@
                                     android:layout_marginTop="8dp"
                                     android:layout_weight="0"
                                     android:text="this week"
-                                    android:textColor="@color/gray" />
+                                    android:textColor="@color/gray"
+                                    android:textAlignment="center" />
 
                             </LinearLayout>
 
@@ -327,17 +346,27 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:layout_gravity="center_vertical"
                         android:layout_margin="32dp">
 
-                        <ImageView
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="5"
-                            android:scaleType="fitStart"
-                            android:src="@drawable/ic_run"
-                            app:tint="@color/primary" />
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                app:layout_constraintDimensionRatio="1:1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:scaleType="fitStart"
+                                android:src="@drawable/ic_run"
+                                app:tint="@color/primary" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <TextView
                             android:layout_width="match_parent"
@@ -346,7 +375,8 @@
                             android:text="Running"
                             android:textSize="24sp"
                             android:textStyle="bold"
-                            android:layout_marginTop="24dp"/>
+                            android:layout_marginTop="24dp"
+                            android:textAlignment="center"/>
 
                         <TextView
                             android:layout_width="match_parent"
@@ -354,7 +384,8 @@
                             android:layout_weight="0"
                             android:text="start running"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/gray"/>
+                            android:textColor="@color/gray"
+                            android:textAlignment="center"/>
 
                     </LinearLayout>
 

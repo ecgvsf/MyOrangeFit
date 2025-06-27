@@ -43,6 +43,8 @@ class Clock : ComponentActivity() {
         // Forza l'orientamento in portrait
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         val crtTime = intent.getIntExtra("crtTime", 15)
+        val crtTimeFloat = (((crtTime % 60)/60f*360f).toFloat())
+        Log.e("sss",crtTimeFloat.toString())
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -57,11 +59,14 @@ class Clock : ComponentActivity() {
 @Composable
 fun ClockApp(clock: Clock, crtTime: Int) {
 
-    var secondHandAngle by remember { mutableFloatStateOf(90f) }
-    var minuteHandAngle by remember { mutableFloatStateOf(0f) }
+    var secondHandAngle by remember { mutableFloatStateOf((((crtTime % 60) / 60f)*360f)) }
+    var minuteHandAngle by remember { mutableFloatStateOf((((crtTime / 60f)) * 6)) }
 
-    var minutes by remember { mutableIntStateOf(0) }
-    var seconds by remember { mutableIntStateOf(15) }
+    var minutes by remember { mutableIntStateOf((crtTime / 60).toInt()) }
+    var seconds by remember { mutableIntStateOf(crtTime % 60) }
+
+
+    var isPlusPressed by remember { mutableStateOf(false) }
 
     fun addSeconds(additionalSeconds: Int) {
         val totalSeconds = seconds + additionalSeconds
@@ -289,13 +294,24 @@ fun ClockApp(clock: Clock, crtTime: Int) {
 
                 // Draw seconds arc
                 drawArc(
-                    color = Color(0xFFFF9800),
+                    color = Color(0x74B14D0B),
                     startAngle = -90f,
                     sweepAngle = secondHandAngle,
                     useCenter = false,
                     topLeft = Offset(center.x - radius , center.y - radius),
                     size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
                     style = Stroke(width = 40f)
+                )
+
+                // Draw minutes arc
+                drawArc(
+                    color = Color(0xFFFF9800),
+                    startAngle = -90f,
+                    sweepAngle = minuteHandAngle,
+                    useCenter = false,
+                    topLeft = Offset(center.x - radius , center.y - radius),
+                    size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
+                    style = Stroke(width = 20f)
                 )
 
                 drawCircle(
@@ -372,7 +388,9 @@ fun ClockApp(clock: Clock, crtTime: Int) {
                     text = "+5",
                     onClick = {
                         addSeconds(5)
-                    }
+                    },
+                    onLongPress = { isPlusPressed = true },
+                    onLongPressRelease = { isPlusPressed = false }
                 )
 
                 Spacer(modifier = Modifier.width(40.dp))
@@ -387,10 +405,36 @@ fun ClockApp(clock: Clock, crtTime: Int) {
                 )
             }
 
+            LongPressSecondCounter(
+                isPressed = isPlusPressed,
+                onTick = { addSeconds(5) }
+            )
+
+
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
+
+@Composable
+fun LongPressSecondCounter(
+    isPressed: Boolean,
+    onTick: () -> Unit,
+    initialDelay: Long = 350,
+    minDelay: Long = 35
+) {
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            var delayMillis = initialDelay
+            while (isPressed) {
+                onTick()
+                kotlinx.coroutines.delay(delayMillis)
+                delayMillis = (delayMillis * 0.7).toLong().coerceAtLeast(minDelay)
+            }
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

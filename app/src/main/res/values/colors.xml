@@ -3,15 +3,10 @@
     <color name="black">#FF000000</color>
     <color name="opaqueBlack">#80000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorShoulders">#FFEB3B</color>
-    <color name="colorBack">#FF5722</color>
-    <color name="colorChest">#2196F3</color>
-    <color name="colorArms">#4CAF50</color>
-    <color name="colorLegs">#FF9800</color>
     <!-- Aggiungi altri colori se necessario -->
     <color name="primary">#FF9800</color>
     <color name="secondary">#FFC107</color>
-    <color name="primary_variant">#DF6310</color>
+    <color name="primary_variant">#B14D0B</color>
     <color name="secondary_variant">#FFEB3B</color>
     <color name="trasparent">#00000000</color>
     <color name="gray">#858585</color>
@@ -25,4 +20,9 @@
     <color name="shouldersColor">#FFC300</color>
     <color name="legsColor">#FFDD00</color>
 
+
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
 </resources>

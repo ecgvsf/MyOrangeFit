@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="65dp">
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/date_picker"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="35dp"
+        android:text="Select your birthday"/>
+
+    <TextView
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/date_picker"
+        android:layout_alignBottom="@id/date_picker"
+        android:layout_marginLeft="25dp"
+        android:backgroundTint="#00000000"
+        android:elevation="0dp"
+        android:paddingVertical="10dp"
+        android:text="DONE"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/primary"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/date_picker"
+        android:layout_marginLeft="25dp"
+        android:layout_toRightOf="@id/done"
+        android:backgroundTint="#00000000"
+        android:elevation="0dp"
+        android:paddingVertical="10dp"
+        android:text="EXIT"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/primary"
+        android:textSize="20sp" />
+
+
+    <DatePicker
+        android:id="@+id/date_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
+        android:calendarTextColor="@color/primary"
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"
+        android:paddingBottom="25dp" />
+
+</RelativeLayout>

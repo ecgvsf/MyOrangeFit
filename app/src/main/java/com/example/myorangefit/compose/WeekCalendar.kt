@@ -97,10 +97,10 @@ private fun Day(
             // you must set the day width on the WeekCalendar!
             .width(screenWidth / 7)
             .padding(4.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(color = if (isToday) colorResource(R.color.primary) else colorResource(R.color.trasparent))
             .border(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(24.dp),
                 width = 1.dp,
                 color = when {
                     isToday -> colorResource(R.color.primary)

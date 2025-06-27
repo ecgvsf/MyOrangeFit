@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <TextView
+        android:id="@+id/height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="16dp"
+        android:textSize="52sp"/>
+
+    <Button
+        android:id="@+id/height_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/height"
+        android:layout_centerHorizontal="true"
+        android:height="40dp"
+        android:text="Select height"
+        android:textColor="@color/white"
+        app:cornerRadius="50dp" />
+
+    <com.kevalpatel2106.rulerpicker.RulerValuePicker
+        android:layout_marginTop="100dp"
+        android:id="@+id/ruler_picker"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_below="@id/height_button"
+        android:background="@color/primary"
+        app:indicator_interval="15dp"
+        app:indicator_width="2dp"
+        app:max_value="250"
+        app:min_value="50"
+        app:ruler_text_size="8sp" />
+
+
+
+</RelativeLayout>

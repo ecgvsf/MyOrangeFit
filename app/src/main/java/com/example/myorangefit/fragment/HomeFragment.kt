@@ -13,9 +13,11 @@ import androidx.cardview.widget.CardView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.ViewModelProvider
-import com.example.myorangefit.MapsActivity
+import com.example.myorangefit.activity.MapsActivity
 import com.example.myorangefit.R
 import com.example.myorangefit.activity.ManageWorkoutActivity
+import com.example.myorangefit.activity.OptionsActivity
+import com.example.myorangefit.activity.RoutineActivity
 import com.example.myorangefit.async.WorkoutViewModel
 import com.example.myorangefit.compose.WeekCalendar
 import com.example.myorangefit.database.DatabaseHelper
@@ -47,7 +49,7 @@ class HomeFragment : Fragment() {
 
         contx = requireContext()
         databaseHelper = DatabaseHelperSingleton.getInstance(contx)
-        viewModel = ViewModelProvider(requireActivity()).get(WorkoutViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity())[WorkoutViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -99,12 +101,22 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
+        binding.routineCard.setOnClickListener {
+            val intent = Intent(contx, RoutineActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.runningCard.setOnClickListener {
             val intent = Intent(contx, MapsActivity::class.java)
             startActivity(intent)
         }
 
         binding.cardContainer.setOnClickListener { flipCard() }
+
+        binding.options.setOnClickListener {
+            val intent = Intent(contx, OptionsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun flipCard() {

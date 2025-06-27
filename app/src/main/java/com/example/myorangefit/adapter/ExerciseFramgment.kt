@@ -1,6 +1,8 @@
 package com.example.myorangefit.adapter
 
 import android.animation.ObjectAnimator
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
@@ -12,19 +14,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myorangefit.R
 import com.example.myorangefit.activity.SeriesActivity
 import com.example.myorangefit.activity.StatisticsWorkoutActivity
+import com.example.myorangefit.async.WorkoutViewModel
 import com.example.myorangefit.database.DatabaseHelper
 import com.example.myorangefit.database.DatabaseHelperSingleton
 import com.example.myorangefit.model.Workout
+import com.example.myorangefit.widget.OrangeFitWidget
+import com.example.myorangefit.widget.updateAppWidget
 import java.time.LocalDate
 import java.util.Collections
 
 class ExerciseFragment : Fragment() {
+
+    private lateinit var viewModel: WorkoutViewModel
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ExerciseCalendarAdapter
@@ -41,6 +50,8 @@ class ExerciseFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         databaseHelper = DatabaseHelperSingleton.getInstance(requireContext())
+
+        viewModel = ViewModelProvider(requireActivity())[WorkoutViewModel::class.java]
 
         val view = inflater.inflate(R.layout.fragment_exercise_list, container, false)
         recyclerView = view.findViewById(R.id.list)
@@ -165,6 +176,20 @@ class ExerciseFragment : Fragment() {
 
     fun removeItemFromDB(id: Int) {
         databaseHelper.deleteWorkoutCalendar(id, date.toString())
+
+        viewModel.removeWorkoutByIdAndDate(id, date)
+
+        val today = LocalDate.now()
+        val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1)
+        val endOfWeek = startOfWeek.plusDays(6)
+        if (!date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val thisWidget = context?.let { ComponentName(it, OrangeFitWidget::class.java) }
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+            for (id in appWidgetIds) {
+                context?.let { updateAppWidget(it, appWidgetManager, id) }
+            }
+        }
     }
 
     fun setSwipe(swipe: Boolean) {

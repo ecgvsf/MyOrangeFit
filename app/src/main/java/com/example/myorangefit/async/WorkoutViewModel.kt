@@ -159,4 +159,32 @@ class WorkoutViewModel(private val databaseHelper: DatabaseHelper) : ViewModel()
             }
         }
     }
+
+    fun removeWorkoutByIdAndDate(workoutId: Int, date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // 1. Rimuovi dal database
+            databaseHelper.deleteWorkoutCalendar(workoutId, date.toString())
+
+            // 2. Aggiorna la lista allenamenti del giorno (se esiste)
+            val currentWorkoutsMap = _workoutsForDate.value?.toMutableMap() ?: mutableMapOf()
+            val currentList = currentWorkoutsMap[date]?.toMutableList() ?: mutableListOf()
+            val newList = currentList.filter { it.id != workoutId }.toMutableList()
+            currentWorkoutsMap[date] = newList
+
+            // 3. Aggiorna la mappa di tutti gli allenamenti per giorno (allWorkouts)
+            val currentAllMap = _allWorkouts.value?.toMutableMap() ?: mutableMapOf()
+            val setForDate = currentAllMap[date]?.toMutableSet() ?: mutableSetOf()
+            // Opzionale: Se vuoi rimuovere il bodypart solo se non ci sono più workout con quel bodypart in quella data,
+            // puoi ricavarlo da databaseHelper.getWorkoutById(workoutId)?.bodyPart
+            // Qui lo lasciamo così:
+            // (La mappa allWorkouts è <LocalDate, MutableSet<String>> di bodyparts)
+
+            // 4. Aggiorna LiveData sul Main Thread
+            withContext(Dispatchers.Main) {
+                _workoutsForDate.value = currentWorkoutsMap
+                _allWorkouts.value = currentAllMap
+            }
+        }
+    }
+
 }

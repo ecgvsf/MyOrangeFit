@@ -1,4 +1,4 @@
-package com.example.myorangefit
+package com.example.myorangefit.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,8 +9,6 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -23,7 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.myorangefit.activity.ActivityManager
+import com.example.myorangefit.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -178,7 +176,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Initialize polyline
-        polyline = mMap.addPolyline(polylineOptions.color(ContextCompat.getColor(this, R.color.primary)))
+        polyline = mMap.addPolyline(polylineOptions.color(ContextCompat.getColor(this,
+            R.color.primary
+        )))
 
         // Request location permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
