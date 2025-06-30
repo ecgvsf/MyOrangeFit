@@ -288,4 +288,13 @@
 
     </LinearLayout>
 
+    <!-- Fade in basso -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/fade_bottom"
+        android:clickable="false"
+        android:focusable="false"/>
+
 </FrameLayout>

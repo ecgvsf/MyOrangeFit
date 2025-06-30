@@ -3,15 +3,16 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+    id 'com.google.gms.google-services'
 }
 
 
 android {
-    namespace 'com.example.myorangefit'
+    namespace 'com.myorangefit.app'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.myorangefit"
+        applicationId "com.myorangefit.app"
         minSdk 26
         targetSdk 34
         versionCode 1
@@ -24,6 +25,10 @@ android {
     }
 
     viewBinding {
+        enabled = true
+    }
+
+    dataBinding {
         enabled = true
     }
 
@@ -76,6 +81,16 @@ dependencies {
     androidTestImplementation platform('androidx.compose:compose-bom:2024.04.01')
     kapt 'androidx.room:room-compiler:2.6.1'
 
+    //FIREBASE
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation "com.google.firebase:firebase-firestore-ktx"
+    implementation "com.google.android.gms:play-services-auth:20.6.0"
+
+    implementation 'com.google.android.gms:play-services-fitness:21.2.0'
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
+
+
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.0'
 
     testImplementation 'junit:junit:4.13.2'
@@ -112,10 +127,6 @@ dependencies {
     implementation 'com.kizitonwose.calendar:compose:2.6.0-beta04'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
-
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
-    implementation 'com.google.android.gms:play-services-fitness:21.2.0'
-    implementation 'com.google.android.gms:play-services-maps:19.0.0'
 
     implementation 'com.patrykandpatrick.vico:views:2.0.0-alpha.28'
     implementation 'com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.28'

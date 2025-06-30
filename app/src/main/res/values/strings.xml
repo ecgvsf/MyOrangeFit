@@ -9,4 +9,5 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
+    <string name="default_web_client_id">327837870586-tohq6ekv0a4kghg435noivekmebd1lhb.apps.googleusercontent.com</string>
 </resources>

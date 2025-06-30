@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "327837870586",
+    "firebase_url": "https://my-training-orange-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "my-training-orange",
+    "storage_bucket": "my-training-orange.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327837870586:android:f294f25d2a030cec6e1c43",
+        "android_client_info": {
+          "package_name": "com.example.mytrainingorange"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327837870586-tohq6ekv0a4kghg435noivekmebd1lhb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx1G3pXRfV6n-_J7hBIi2ejpCqNQM2DhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327837870586-tohq6ekv0a4kghg435noivekmebd1lhb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327837870586:android:ff7ee1d251e064646e1c43",
+        "android_client_info": {
+          "package_name": "com.myorangefit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327837870586-tohq6ekv0a4kghg435noivekmebd1lhb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx1G3pXRfV6n-_J7hBIi2ejpCqNQM2DhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327837870586-tohq6ekv0a4kghg435noivekmebd1lhb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

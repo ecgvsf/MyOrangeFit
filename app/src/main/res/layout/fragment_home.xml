@@ -253,6 +253,7 @@
                                 android:layout_marginTop="36dp"
                                 android:layout_marginEnd="8dp"
                                 android:rotation="30"
+                                android:visibility="gone"
                                 />
 
                         </RelativeLayout>
@@ -301,8 +302,14 @@
                         android:clipToPadding="false"
                         android:backgroundTint="@color/darkdark_gray">
 
+                        <androidx.compose.ui.platform.ComposeView
+                            android:id="@+id/freqChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="16dp"/>
 
                             <LinearLayout
+                                android:visibility="gone"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginHorizontal="28dp"

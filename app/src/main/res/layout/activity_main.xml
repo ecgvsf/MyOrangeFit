@@ -18,9 +18,10 @@
         android:layout_above="@id/bottom_navigation"
         app:layout_anchor="@id/bottom_navigation"
         android:layout_marginBottom="70dp"
-        android:clipChildren="false"/>
+        android:clipChildren="false"
+        android:clipToPadding="false"/>
 
-    <com.example.myorangefit.curveMenu.CurvedBottomNavigationView
+    <com.myorangefit.app.curveMenu.CurvedBottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="116dp"

@@ -7,7 +7,7 @@
     android:gravity="center"
     android:layout_margin="32dp">
 
-    <com.example.myorangefit.xml.SquareFrameLayout
+    <com.myorangefit.app.xml.SquareFrameLayout
         android:id="@+id/barChart"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -27,9 +27,9 @@
                 android:src="@drawable/ic_bar_chart"
                 app:tint="@color/primary"/>
         </androidx.cardview.widget.CardView>
-    </com.example.myorangefit.xml.SquareFrameLayout>
+    </com.myorangefit.app.xml.SquareFrameLayout>
 
-    <com.example.myorangefit.xml.SquareFrameLayout
+    <com.myorangefit.app.xml.SquareFrameLayout
         android:id="@+id/pieChart"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -49,9 +49,9 @@
                 android:src="@drawable/ic_pie_chart"
                 app:tint="@color/primary"/>
         </androidx.cardview.widget.CardView>
-    </com.example.myorangefit.xml.SquareFrameLayout>
+    </com.myorangefit.app.xml.SquareFrameLayout>
 
-    <com.example.myorangefit.xml.SquareFrameLayout
+    <com.myorangefit.app.xml.SquareFrameLayout
         android:id="@+id/lineChart"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -71,5 +71,5 @@
                 android:src="@drawable/ic_line_chart"
                 app:tint="@color/primary"/>
         </androidx.cardview.widget.CardView>
-    </com.example.myorangefit.xml.SquareFrameLayout>
+    </com.myorangefit.app.xml.SquareFrameLayout>
 </LinearLayout>
