@@ -373,6 +373,35 @@
                     app:tint="@color/white" />
             </LinearLayout>
 
+
+
+            <!-- Log out -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/LogOutTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Log Out"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/primary_variant"/>
+
+                <ImageView
+                    android:id="@+id/LogOutArrow"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_log_out"
+                    app:tint="@color/primary_variant" />
+            </LinearLayout>
+
         </LinearLayout>
 
 

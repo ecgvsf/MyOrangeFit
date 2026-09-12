@@ -40,8 +40,9 @@ class StatisticFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         databaseHelper = DatabaseHelper(requireContext())
-        enterTransition = Fade()
-        exitTransition  = Fade()
+        val fade = Fade().setDuration(100L)
+        enterTransition = fade
+        exitTransition  = fade
     }
 
     override fun onCreateView(

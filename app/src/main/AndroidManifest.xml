@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -22,6 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyOrangeFit"
         tools:targetApi="31">
+
         <activity
             android:name=".activity.auth.RecoverPwActivity"
             android:exported="false" />
@@ -88,7 +92,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDadyiDtr0GvB57Pq4qeIRQp7rShp1tIkU" />
+            android:value="${MAPS_API_KEY}" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -96,11 +100,18 @@
             <receiver android:name=".PauseResumeReceiver" />
             <receiver android:name=".StopReceiver" />
         -->
+
         <activity
             android:name=".activity.MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait" />
+        <service
+            android:name=".service.TrackingService"
+            android:exported="false"
+            android:foregroundServiceType="location">
+        </service>
+
         <activity
             android:name=".activity.exercise.SeriesActivity"
             android:exported="false"

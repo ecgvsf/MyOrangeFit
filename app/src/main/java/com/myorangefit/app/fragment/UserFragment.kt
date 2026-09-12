@@ -1,7 +1,9 @@
 package com.myorangefit.app.fragment
 
+import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
@@ -37,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import android.transition.Fade
+import androidx.room.util.findColumnIndexBySuffix
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.myorangefit.app.R
 import com.myorangefit.app.async.WorkoutViewModel
 import com.myorangefit.app.compose.MyButton
@@ -46,8 +51,13 @@ import com.myorangefit.app.database.DatabaseHelper
 import com.myorangefit.app.database.DatabaseHelperSingleton
 import com.myorangefit.app.databinding.FragmentUserBinding
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.kevalpatel2106.rulerpicker.RulerValuePicker
 import com.kevalpatel2106.rulerpicker.RulerValuePickerListener
+import com.myorangefit.app.activity.ActivityManager.finish
+import com.myorangefit.app.activity.MainActivity
+import com.myorangefit.app.activity.auth.LoginActivity
 
 
 class UserFragment : Fragment() {
@@ -62,8 +72,9 @@ class UserFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = Fade()
-        exitTransition  = Fade()
+        val fade = Fade().setDuration(100L)
+        enterTransition = fade
+        exitTransition  = fade
     }
 
     override fun onCreateView(
@@ -82,8 +93,35 @@ class UserFragment : Fragment() {
         binding.genderLayout.setOnClickListener { showSexDialog() }
         binding.heightLayout.setOnClickListener { showHeightDialog() }
         binding.weightLayout.setOnClickListener { showWeightDialog() }
+        binding.LogOutArrow.setOnClickListener { logOut() }
 
         return binding.root
+    }
+
+    private fun logOut() {
+        val auth = FirebaseAuth.getInstance()
+        val user: FirebaseUser? = auth.currentUser
+
+        // 1) Disconnetti da Firebase
+        auth.signOut()
+
+        // 2) Se uno dei provider è Google, disconnetti anche il client Google
+        user?.providerData
+            ?.map { it.providerId }
+            ?.firstOrNull { it == "google.com" }
+            ?.let {
+                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build()
+                val googleClient = GoogleSignIn.getClient(requireContext(), gso)
+                googleClient.signOut()
+            }
+
+        // 3) Naviga al LoginActivity (o altra schermata di login) e pulisci back stack
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     class WeightPickerDialog(

@@ -54,8 +54,9 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enterTransition = Fade()
-        exitTransition  = Fade()
+        val fade = Fade().setDuration(100L)
+        enterTransition = fade
+        exitTransition  = fade
 
         contx = requireContext()
         databaseHelper = DatabaseHelperSingleton.getInstance(contx)
@@ -142,7 +143,7 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
-        binding.cardContainer.setOnClickListener { flipCard() }
+        binding.cardContainer.setOnClickListener { /*flipCard()*/ }
 
         binding.options.setOnClickListener {
             val intent = Intent(contx, OptionsActivity::class.java)

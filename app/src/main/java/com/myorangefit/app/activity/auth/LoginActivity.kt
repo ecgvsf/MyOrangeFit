@@ -37,6 +37,17 @@ class LoginActivity : AppCompatActivity() {
         // Inizializza FirebaseAuth
         auth = FirebaseAuth.getInstance()
 
+        options = ActivityOptions.makeCustomAnimation(
+            this,
+            R.anim.fade_in,
+            R.anim.fade_out
+        ).toBundle()
+
+        auth.currentUser?.let {
+            goMain()
+            return
+        }
+
         // Configura Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -47,11 +58,7 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        options = ActivityOptions.makeCustomAnimation(
-            this,
-            R.anim.fade_in,
-            R.anim.fade_out
-        ).toBundle()
+
 
         binding.login.setOnClickListener { logInWithEmail() }
         binding.loginGoogle.setOnClickListener { logInWithGoogle() }

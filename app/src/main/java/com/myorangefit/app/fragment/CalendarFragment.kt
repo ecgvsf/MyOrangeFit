@@ -80,8 +80,9 @@ class CalendarFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = Fade()
-        exitTransition  = Fade()
+        val fade = Fade().setDuration(100L)
+        enterTransition = fade
+        exitTransition  = fade
 
         today = (arguments?.getSerializable("today") as? LocalDate)!!
         contx = requireContext()
